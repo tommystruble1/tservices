@@ -91,7 +91,7 @@
   }
 
   /* ---- active section in nav ---- */
-  var sectionIds = ['services', 'titles', 'packages', 'process', 'faq'];
+  var sectionIds = ['services', 'platforms', 'process', 'faq'];
   var navMap = {};
   sectionIds.forEach(function (id) {
     navMap[id] = document.querySelector('.nav__links a[href="#' + id + '"]');
@@ -116,15 +116,24 @@
     });
   }
 
-  /* ---- package buttons prefill the order form ---- */
-  var select = document.getElementById('packageSelect');
-  document.querySelectorAll('.tier .btn').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var rank = btn.closest('.tier').querySelector('.tier__rank').textContent.trim();
-      if (!select) return;
-      Array.prototype.forEach.call(select.options, function (opt) {
-        if (opt.text.toUpperCase().indexOf(rank) === 0) select.value = opt.value || opt.text;
+  /* ---- price tiles prefill the order form ----
+     Each .ptier carries data-service matching an <option> label exactly. */
+  var serviceSelect = document.getElementById('serviceSelect');
+  document.querySelectorAll('.ptier[data-service]').forEach(function (tile) {
+    tile.addEventListener('click', function () {
+      if (!serviceSelect) return;
+      var want = tile.dataset.service;
+      var matched = Array.prototype.some.call(serviceSelect.options, function (opt) {
+        if (opt.text !== want) return false;
+        serviceSelect.value = opt.value || opt.text;
+        return true;
       });
+      if (matched) {
+        serviceSelect.classList.remove('invalid');
+        // Flash the field so it's obvious the tap did something.
+        serviceSelect.classList.add('prefilled');
+        setTimeout(function () { serviceSelect.classList.remove('prefilled'); }, 1400);
+      }
     });
   });
 
