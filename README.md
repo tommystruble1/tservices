@@ -34,54 +34,65 @@ Naming the repo `USERNAME.github.io` serves it from the root domain instead.
 
 ## Launch checklist
 
-- [ ] Buy a domain (see below)
+- [x] Domain bought — `tservices.cc` at Cloudflare
+- [x] `CNAME` file committed
 - [ ] Create the GitHub repo and push
-- [ ] Settings → Pages → deploy from `main` / `(root)`
-- [ ] Add the custom domain in Settings → Pages, then `git pull` (it commits a `CNAME` file)
-- [ ] Add the DNS records at your registrar
-- [ ] Wait for verification, then tick **Enforce HTTPS**
+- [ ] Settings → Pages → deploy from `main` / `(root)`; confirm the `github.io` URL loads
+- [ ] Add the five DNS records at Cloudflare, **all set to DNS only (grey cloud)**
+- [ ] Settings → Pages → Custom domain → `tservices.cc` → Save
+- [ ] Wait for the green check, then tick **Enforce HTTPS**
 - [ ] Write the two `class="todo"` FAQ answers
 - [ ] Replace or delete the three placeholder vouches
 
 ---
 
-## Custom domain
+## Custom domain — tservices.cc (Cloudflare)
 
-Yes — GitHub Pages supports custom domains free, and it issues the HTTPS certificate for you. You only pay for the domain itself (~$10–15/yr at Cloudflare, Porkbun or Namecheap; avoid GoDaddy's renewal pricing).
+The `CNAME` file at the repo root already contains `tservices.cc`, so GitHub picks the domain up on the first deploy. **Do not delete it** — it's what tells Pages which domain to serve, and it must stay LF-only with no BOM (`.gitattributes` enforces that).
 
-**1. Buy the domain.**
+### DNS records at Cloudflare
 
-**2. Point DNS at GitHub.** At your registrar's DNS panel:
+Cloudflare dashboard → **tservices.cc** → **DNS** → **Records**. Add five records, and set every one of them to **DNS only** (grey cloud, not orange):
 
-For the apex domain (`tsservices.com`) — four A records, all with host `@`:
+| Type | Name | Content | Proxy |
+|---|---|---|---|
+| A | `@` | `185.199.108.153` | DNS only |
+| A | `@` | `185.199.109.153` | DNS only |
+| A | `@` | `185.199.110.153` | DNS only |
+| A | `@` | `185.199.111.153` | DNS only |
+| CNAME | `www` | `USERNAME.github.io` | DNS only |
 
+Replace `USERNAME` with your GitHub username. Optionally add the four IPv6 AAAA records on `@` too: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`.
+
+> Confirm these IPs against [GitHub's docs](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site) when you set this up. They change rarely, but they do change.
+
+### The grey cloud matters
+
+Leave the proxy **off** until the site is live on HTTPS. With the orange cloud on, GitHub can't complete the ACME challenge, so it never issues your certificate and you get either a cert warning or an infinite redirect loop. This is the single most common way this setup fails.
+
+Once GitHub shows **Enforce HTTPS** ticked and working, you *may* turn the proxy on — but only after setting **SSL/TLS → Overview → Full (strict)**. The default *Flexible* mode causes a redirect loop with Pages. If you don't specifically need Cloudflare's caching or DDoS protection, just leave it grey; it works fine.
+
+### Order of operations
+
+1. Push the repo and enable Pages (`main` / `(root)`). Confirm `USERNAME.github.io/REPO` loads.
+2. Add the DNS records above at Cloudflare, all DNS only.
+3. Repo → **Settings → Pages → Custom domain** → `tservices.cc` → **Save**. GitHub verifies DNS — this can take 10 minutes to a few hours.
+4. When the check goes green, tick **Enforce HTTPS**.
+5. `git pull` before your next push. GitHub may rewrite the `CNAME` file from its UI.
+
+`www.tservices.cc` will redirect to the apex automatically once the `www` CNAME resolves.
+
+### Link previews
+
+`index.html` carries Open Graph and Twitter card tags, so the link unfurls with a title and description when pasted into Discord — worth having when the invite is your main channel. The `theme-color` tints the left stripe of Discord's embed blue.
+
+There's no preview **image** yet, because that needs a real 1200×630 PNG. If you want one, drop it at `assets/og.png` and add:
+
+```html
+<meta property="og:image" content="https://tservices.cc/assets/og.png" />
 ```
-185.199.108.153
-185.199.109.153
-185.199.110.153
-185.199.111.153
-```
 
-And optionally the IPv6 AAAA records, same host `@`:
-
-```
-2606:50c0:8000::153
-2606:50c0:8001::153
-2606:50c0:8002::153
-2606:50c0:8003::153
-```
-
-For `www` — one CNAME record, host `www`, value `USERNAME.github.io` (note the trailing dot if your registrar wants one).
-
-> These are GitHub's published Pages IPs. Confirm them against
-> [GitHub's docs](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site)
-> when you set this up — they change rarely, but they do change.
-
-**3. Tell GitHub.** Repo → **Settings → Pages → Custom domain** → type the domain → **Save**. This commits a `CNAME` file to the repo, so run `git pull` before your next push or you'll hit a conflict.
-
-**4. Wait, then force HTTPS.** DNS takes anywhere from 10 minutes to a few hours. Once GitHub shows the domain as verified, tick **Enforce HTTPS**. Don't skip this — an unlocked padlock on a page asking for money kills conversions.
-
-**Notes.** Use Cloudflare's DNS if you want the domain proxied, but set SSL/TLS mode to **Full (strict)** or you'll get a redirect loop. And if you're taking payment for account services, expect that a domain registered with fake WHOIS details can be pulled — most registrars include free WHOIS privacy, which is the right way to stay unlisted.
+The OG tags hardcode `https://tservices.cc/` — if the domain ever changes, update them along with `CNAME` and the `<link rel="canonical">`.
 
 ---
 
