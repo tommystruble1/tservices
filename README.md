@@ -88,7 +88,7 @@ They render as dashed amber boxes on the page so you can't miss them. Search `cl
 | `.quote` blocks | All three vouches are invented. Use real ones from your server or delete the section. |
 | `<meta name="description">` | Your search snippet |
 
-Contact details are live: the invite is `discord.gg/reacters` and the handles are `tom1x1` and `originators`. All three cards link to the invite.
+Contact details are live: the invite is `discord.gg/reacters`, the handle is `tom1x1`, and the Originators contact is `reactors`. All three cards link to the invite.
 
 Everything else — prices, times, platinum counts, package contents, the BO3 extras list, the emblem tiers — is taken straight from what you posted and should be accurate.
 
