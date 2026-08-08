@@ -18,17 +18,19 @@ python -m http.server 8123
 
 ## Deploy to GitHub Pages
 
-1. Create a new **public** repo on GitHub (no README, no .gitignore — this repo has them).
+Account: **tommystruble1**. Repo name assumed to be `tservices` below — change it if you pick another.
+
+1. Create a new **public** repo named `tservices` on GitHub. Do **not** tick "Add a README" or "Add .gitignore" — this repo already has both, and pre-filling them causes a push conflict.
 2. Push:
 
 ```bash
-git remote add origin https://github.com/USERNAME/REPO.git && git push -u origin main
+git remote add origin https://github.com/tommystruble1/tservices.git && git push -u origin main
 ```
 
 3. Repo → **Settings → Pages → Source: Deploy from a branch → `main` / `(root)` → Save.**
-4. Live in ~1 minute at `https://USERNAME.github.io/REPO/`.
+4. Live in ~1 minute at `https://tommystruble1.github.io/tservices/`.
 
-Naming the repo `USERNAME.github.io` serves it from the root domain instead.
+Confirm that URL loads before touching DNS. If it works there, the site is fine and any later problem is purely DNS.
 
 ---
 
@@ -60,9 +62,11 @@ Cloudflare dashboard → **tservices.cc** → **DNS** → **Records**. Add five 
 | A | `@` | `185.199.109.153` | DNS only |
 | A | `@` | `185.199.110.153` | DNS only |
 | A | `@` | `185.199.111.153` | DNS only |
-| CNAME | `www` | `USERNAME.github.io` | DNS only |
+| CNAME | `www` | `tommystruble1.github.io` | DNS only |
 
-Replace `USERNAME` with your GitHub username. Optionally add the four IPv6 AAAA records on `@` too: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`.
+Note the `www` target is `tommystruble1.github.io` — the account root, **not** `tommystruble1.github.io/tservices`. A CNAME can't contain a path; the `CNAME` file in the repo is what maps the domain to this specific repo.
+
+Optionally add the four IPv6 AAAA records on `@` too: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`.
 
 > Confirm these IPs against [GitHub's docs](https://docs.github.com/pages/configuring-a-custom-domain-for-your-github-pages-site) when you set this up. They change rarely, but they do change.
 
@@ -74,7 +78,7 @@ Once GitHub shows **Enforce HTTPS** ticked and working, you *may* turn the proxy
 
 ### Order of operations
 
-1. Push the repo and enable Pages (`main` / `(root)`). Confirm `USERNAME.github.io/REPO` loads.
+1. Push the repo and enable Pages (`main` / `(root)`). Confirm `tommystruble1.github.io/tservices` loads.
 2. Add the DNS records above at Cloudflare, all DNS only.
 3. Repo → **Settings → Pages → Custom domain** → `tservices.cc` → **Save**. GitHub verifies DNS — this can take 10 minutes to a few hours.
 4. When the check goes green, tick **Enforce HTTPS**.
