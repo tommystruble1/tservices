@@ -34,17 +34,22 @@ Confirm that URL loads before touching DNS. If it works there, the site is fine 
 
 ---
 
-## Launch checklist
+## Status: live
+
+**https://tservices.cc** — deployed, HTTPS, cert auto-renewing.
 
 - [x] Domain bought — `tservices.cc` at Cloudflare
-- [x] `CNAME` file committed
-- [ ] Create the GitHub repo and push
-- [ ] Settings → Pages → deploy from `main` / `(root)`; confirm the `github.io` URL loads
-- [ ] Add the five DNS records at Cloudflare, **all set to DNS only (grey cloud)**
-- [ ] Settings → Pages → Custom domain → `tservices.cc` → Save
-- [ ] Wait for the green check, then tick **Enforce HTTPS**
-- [ ] Write the two `class="todo"` FAQ answers
-- [ ] Replace or delete the three placeholder vouches
+- [x] DNS records added (four A on `@`, CNAME on `www`, all unproxied)
+- [x] Repo pushed, Pages building from `main` / `(root)`
+- [x] Custom domain configured via the `CNAME` file; Let's Encrypt cert issued
+- [ ] Tick **Enforce HTTPS** in Settings → Pages (http already upgrades, but make it explicit)
+
+### Still worth adding
+
+- **A "Do you need my account login?" FAQ entry.** Deliberately absent rather than guessed at — it's the most common buyer objection, and the answer is a commitment only you can make. Worth writing: what you need from a buyer, whether 2FA has to come off, and what happens to the credentials afterwards.
+- **Payment and refund terms**, same reasoning.
+- **Real vouches.** The invented ones were removed. If you add a testimonials section back, use genuine quotes from your server.
+- **A link-preview image** — see the Custom domain section.
 
 ---
 
@@ -100,27 +105,13 @@ The OG tags hardcode `https://tservices.cc/` — if the domain ever changes, upd
 
 ---
 
-## Before you go live
+## Content notes
 
-### 1. Two FAQ answers are unwritten
+Everything on the page is real. Prices, times, platinum counts, package contents, the BO3 extras list and the emblem tiers all come straight from the service listings. Contact details are live: the invite is `discord.gg/reacters`, the handle is `tom1x1`, and the Originators contact is `reactors` — all three cards link to the invite.
 
-They render as dashed amber boxes on the page so you can't miss them. Search `class="todo"` in `index.html`.
+The only thing still generic is `<meta name="description">`, which is your search-result snippet.
 
-- **"Do you need my account login?"** — This is the single most important sentence on the site. Every trophy buyer asks it, and a vague answer costs more orders than any price change. Say exactly what you need, whether 2FA has to come off, what you do with the credentials during the job, and what happens to them after.
-- **"How do I pay, and do you refund?"** — Your real methods and terms.
-
-### 2. Placeholder content to replace
-
-| Where | What |
-|---|---|
-| `.quote` blocks | All three vouches are invented. Use real ones from your server or delete the section. |
-| `<meta name="description">` | Your search snippet |
-
-Contact details are live: the invite is `discord.gg/reacters`, the handle is `tom1x1`, and the Originators contact is `reactors`. All three cards link to the invite.
-
-Everything else — prices, times, platinum counts, package contents, the BO3 extras list, the emblem tiers — is taken straight from what you posted and should be accurate.
-
-### 3. Turn the emblem service back on
+### Turn the emblem service back on
 
 It renders dimmed with an `Offline · Updating` badge and a waitlist note. When the tool is back:
 

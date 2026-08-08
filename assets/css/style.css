@@ -441,26 +441,6 @@ h1, h2, h3 {
 .step p { color: var(--ink-dim); margin: 0; font-size: 15.5px; }
 
 /* ============================================
-   QUOTES
-   ============================================ */
-.quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px; }
-.quote {
-  margin: 0; padding: 28px 26px;
-  border: 1px solid var(--line); border-radius: var(--r-sm); background: var(--panel);
-  position: relative; transition: border-color .24s, transform .24s;
-}
-.quote:hover { border-color: #2a3a5c; transform: translateY(-4px); }
-.quote::before {
-  content: '“'; position: absolute; top: 8px; right: 20px;
-  font-family: var(--font-head); font-size: 68px; font-weight: 700;
-  color: rgba(59,130,246,.16); line-height: 1;
-}
-.quote blockquote { margin: 0 0 20px; color: var(--ink); font-size: 16px; position: relative; }
-.quote figcaption { border-top: 1px solid var(--line-soft); padding-top: 14px; }
-.quote figcaption b { display: block; font-size: 15px; font-weight: 600; color: var(--acc-hot); }
-.quote figcaption span { font-size: 13.5px; color: var(--ink-mute); }
-
-/* ============================================
    FAQ
    ============================================ */
 .faq { display: grid; gap: 10px; }
@@ -486,13 +466,6 @@ h1, h2, h3 {
 .faq__item summary:hover { color: var(--acc-hot); }
 .faq__body { padding: 0 22px 20px; }
 .faq__body p { margin: 0; color: var(--ink-dim); font-size: 15.5px; }
-
-/* Unmissable placeholder — these answers must be written before launch. */
-.todo {
-  border: 1px dashed var(--warn); border-radius: var(--r-sm);
-  background: rgba(245,158,11,.07); padding: 15px 17px;
-}
-.todo b { color: var(--warn); display: block; margin-bottom: 4px; }
 
 /* ============================================
    CTA + FORM
