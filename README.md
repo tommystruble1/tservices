@@ -32,6 +32,19 @@ Naming the repo `USERNAME.github.io` serves it from the root domain instead.
 
 ---
 
+## Launch checklist
+
+- [ ] Buy a domain (see below)
+- [ ] Create the GitHub repo and push
+- [ ] Settings → Pages → deploy from `main` / `(root)`
+- [ ] Add the custom domain in Settings → Pages, then `git pull` (it commits a `CNAME` file)
+- [ ] Add the DNS records at your registrar
+- [ ] Wait for verification, then tick **Enforce HTTPS**
+- [ ] Write the two `class="todo"` FAQ answers
+- [ ] Replace or delete the three placeholder vouches
+
+---
+
 ## Custom domain
 
 Yes — GitHub Pages supports custom domains free, and it issues the HTTPS certificate for you. You only pay for the domain itself (~$10–15/yr at Cloudflare, Porkbun or Namecheap; avoid GoDaddy's renewal pricing).
@@ -107,15 +120,15 @@ All colors are CSS custom properties at the top of `style.css`. To shift the acc
 
 The logo is inline SVG in the nav plus a duplicate in the favicon `data:` URI in `<head>` — change both if you redraw it.
 
-## The order form does not send anything
+## Ordering: Discord, not a form
 
-`assets/js/main.js` validates the form and shows a success message, but there is **no backend** — GitHub Pages only serves static files. Submissions go nowhere. Options:
+There is no contact form and that's deliberate — GitHub Pages serves static files only, so a form would have needed a third-party backend, and a form that silently drops orders is worse than no form.
 
-- **[Formspree](https://formspree.io)** — easiest. Set `<form action="https://formspree.io/f/YOUR_ID" method="POST">` and remove the `preventDefault()` handler.
-- **[Getform](https://getform.io)** or **[Basin](https://usebasin.com)** — same idea.
-- **Discord webhook** — do *not* put the webhook URL in client-side JS; anyone can read it and spam your server. Proxy it through a Cloudflare Worker.
+Instead, `#contact` is an order card: a four-point checklist of what to send, a button straight to `discord.gg/reacters`, and a **Copy order template** button that puts a pre-filled message on the clipboard. Clicking any price tile writes that package into line 1 of the template, so most people arrive in the server with a complete order already pasted.
 
-Until one of those is wired up, the Discord link is your real intake and the form is decoration. Consider deleting it rather than shipping a form that silently drops orders.
+The copy button uses the async Clipboard API with an `execCommand` fallback, and shows an amber "copy it manually" message if both are blocked. The Clipboard API needs a secure context, so it works on `https://` and `localhost` but not from a bare `file://` path — that's a local-preview quirk, not a production one.
+
+If you later want orders by email instead, [Formspree](https://formspree.io) is the least-effort option. Do **not** put a Discord webhook URL in client-side JS — anyone can read it and spam your server. Proxy it through a Cloudflare Worker.
 
 ## Risk and legal notes
 

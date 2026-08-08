@@ -397,61 +397,37 @@
     <header class="sec-head sec-head--center reveal">
       <p class="sec-head__tag">// 06 — COMMS</p>
       <h2 class="sec-head__title">Start an Order</h2>
-      <p class="sec-head__sub">Send this over and we'll come back to you in the server. Most orders start the same day.</p>
+      <p class="sec-head__sub">Everything runs through Discord. Most orders start the same day you place them.</p>
     </header>
 
-    <form class="form reveal" id="orderForm" novalidate>
-      <div class="form__row">
-        <label>
-          <span>Discord handle</span>
-          <input type="text" name="handle" placeholder="@yourname" required />
-        </label>
-        <label>
-          <span>Platform</span>
-          <select name="platform" required>
-            <option value="">Select…</option>
-            <option>PS5</option>
-            <option>PS4</option>
-            <option>PC</option>
-          </select>
-        </label>
+    <div class="order-card reveal">
+      <p class="order-card__eyebrow">Takes about a minute</p>
+      <h3 class="order-card__title">Order on Discord</h3>
+      <p class="order-card__lede">
+        Join the server and send us these four things. That's the whole process —
+        we'll reply with a start time.
+      </p>
+
+      <ol class="order-steps">
+        <li><b>Package</b><span id="pickedPackage" class="pick">Pick one above, or ask for a quote</span></li>
+        <li><b>Platform</b><span>PS5, PS4 or PC</span></li>
+        <li><b>Your handle</b><span>So we know who we're replying to</span></li>
+        <li><b>Anything extra</b><span>Clan tag, calling cards, custom requests</span></li>
+      </ol>
+
+      <div class="order-card__actions">
+        <a class="btn btn--primary btn--lg" href="https://discord.gg/reacters" target="_blank" rel="noopener">
+          Open Discord — discord.gg/reacters
+        </a>
+        <button class="btn btn--ghost btn--lg" type="button" id="copyOrder">Copy order template</button>
       </div>
+      <p class="order-card__status" id="copyNote" role="status"></p>
 
-      <label class="form__full">
-        <span>Service</span>
-        <select name="service" id="serviceSelect" required>
-          <option value="">Select a package…</option>
-          <optgroup label="Trophy Service">
-            <option>Trophy — Base ($5)</option>
-            <option>Trophy — Medium ($10)</option>
-            <option>Trophy — Large ($25)</option>
-            <option>Trophy — Max Package ($45)</option>
-          </optgroup>
-          <optgroup label="Black Ops III">
-            <option>Liquid Divinium ($15)</option>
-          </optgroup>
-          <optgroup label="Black Ops II — waitlist">
-            <option>BO2 Emblems — 1–5 ($5)</option>
-            <option>BO2 Emblems — 10 ($10)</option>
-            <option>BO2 Emblems — Max Slots ($25)</option>
-          </optgroup>
-          <option>Something else — quote me</option>
-        </select>
-      </label>
-
-      <label class="form__full">
-        <span>Anything we should know?</span>
-        <textarea name="brief" rows="4" placeholder="Max package please. Also want the colored clan tag if that's possible on the same order."></textarea>
-      </label>
-
-      <label class="check">
-        <input type="checkbox" name="terms" required />
-        <span>I understand these services fall outside Sony's and Activision's terms of service, and I'm accepting that risk on my own account.</span>
-      </label>
-
-      <button class="btn btn--primary btn--lg btn--block" type="submit">Transmit Request</button>
-      <p class="form__note" id="formNote" role="status"></p>
-    </form>
+      <p class="order-card__fine">
+        Ordering means you accept that these services fall outside Sony's and Activision's
+        terms of service, and that the risk sits with your own account.
+      </p>
+    </div>
 
     <div class="contact-alt reveal">
       <a class="contact-alt__item" href="https://discord.gg/reacters" target="_blank" rel="noopener">

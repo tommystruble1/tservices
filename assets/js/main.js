@@ -116,70 +116,68 @@
     });
   }
 
-  /* ---- price tiles prefill the order form ----
-     Each .ptier carries data-service matching an <option> label exactly. */
-  var serviceSelect = document.getElementById('serviceSelect');
+  /* ---- price tiles record your pick ----
+     Intake is Discord, so a tile click just fills the readout in the order
+     card (and the copy template) rather than submitting anything. */
+  var picked = document.getElementById('pickedPackage');
+  var pickedValue = '';
+
   document.querySelectorAll('.ptier[data-service]').forEach(function (tile) {
     tile.addEventListener('click', function () {
-      if (!serviceSelect) return;
-      var want = tile.dataset.service;
-      var matched = Array.prototype.some.call(serviceSelect.options, function (opt) {
-        if (opt.text !== want) return false;
-        serviceSelect.value = opt.value || opt.text;
-        return true;
-      });
-      if (matched) {
-        serviceSelect.classList.remove('invalid');
-        // Flash the field so it's obvious the tap did something.
-        serviceSelect.classList.add('prefilled');
-        setTimeout(function () { serviceSelect.classList.remove('prefilled'); }, 1400);
+      if (!picked) return;
+      pickedValue = tile.dataset.service;
+      picked.textContent = pickedValue;
+      picked.classList.add('pick--set');
+      // Flash so it's obvious the tap registered before the page scrolls.
+      picked.classList.add('pick--flash');
+      setTimeout(function () { picked.classList.remove('pick--flash'); }, 1200);
+    });
+  });
+
+  /* ---- copy an order template to paste into Discord ---- */
+  var copyBtn = document.getElementById('copyOrder');
+  var copyNote = document.getElementById('copyNote');
+
+  function buildTemplate() {
+    return [
+      'Package: ' + (pickedValue || '(which one?)'),
+      'Platform: ',
+      'Handle: ',
+      'Extras: '
+    ].join('\n');
+  }
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:-1000px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (err) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function reportCopy(ok) {
+    copyNote.textContent = ok
+      ? 'Copied — paste it straight into Discord.'
+      : 'Couldn’t copy automatically. Select the four lines above and copy them manually.';
+    copyNote.className = 'order-card__status ' + (ok ? 'ok' : 'err');
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var text = buildTemplate();
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(
+          function () { reportCopy(true); },
+          function () { reportCopy(fallbackCopy(text)); }
+        );
+      } else {
+        reportCopy(fallbackCopy(text));
       }
     });
-  });
-
-  /* ---- order form ----
-     Static hosting has no backend, so this validates and hands off.
-     Swap the block below for a Formspree/Getform endpoint or a Discord
-     webhook proxy when you're ready to take real submissions. */
-  var form = document.getElementById('orderForm');
-  var note = document.getElementById('formNote');
-
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-    note.className = 'form__note';
-
-    var fields = form.querySelectorAll('input, select, textarea');
-    var firstBad = null;
-
-    fields.forEach(function (f) {
-      var bad = !f.checkValidity();
-      f.classList.toggle('invalid', bad);
-      if (bad && !firstBad) firstBad = f;
-    });
-
-    if (firstBad) {
-      note.textContent = '> TRANSMISSION FAILED — check the highlighted fields.';
-      note.classList.add('err');
-      firstBad.focus();
-      return;
-    }
-
-    var btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = 'Transmitting…';
-
-    setTimeout(function () {
-      btn.disabled = false;
-      btn.textContent = 'Transmit Request';
-      form.reset();
-      note.textContent = '> REQUEST RECEIVED. Quote inbound within 12 hours.';
-      note.classList.add('ok');
-    }, 900);
-  });
-
-  form.addEventListener('input', function (e) {
-    if (e.target.classList.contains('invalid') && e.target.checkValidity()) {
-      e.target.classList.remove('invalid');
-    }
-  });
+  }
 })();
