@@ -111,14 +111,20 @@ Everything on the page is real. Prices, times, platinum counts, package contents
 
 The only thing still generic is `<meta name="description">`, which is your search-result snippet.
 
-### Turn the emblem service back on
+### Service status toggles
 
-It renders dimmed with an `Offline · Updating` badge and a waitlist note. When the tool is back:
+All three services are live. Emblem Hosting is the **flagship** — it sits first in the Services section with a `svc--featured` treatment (blue border, glow, "Flagship service" ribbon) and its $25 Max Slots tier is flagged Best Value.
 
-- `<article class="svc svc--offline">` → `<article class="svc">`
-- `<span class="badge badge--off">Offline · Updating</span>` → `<span class="badge badge--live">Online</span>`
-- Replace the three `Queued until back online` lines and delete the `.svc__note--warn` paragraph.
-- Update the hero kicker: `2 OF 3 SERVICES LIVE` → `ALL SERVICES LIVE`.
+To promote a different service, move its `<article>` to the top of `#services` and swap the `svc--featured` class and `<span class="svc__flag">` onto it.
+
+To take a service offline again:
+
+- `<article class="svc">` → `<article class="svc svc--offline">` (dims the block; the CSS is retained for this)
+- `<span class="badge badge--live">Online · Taking orders</span>` → `<span class="badge badge--off">Offline · Updating</span>`
+- Change the `.ptier__time` lines to something like `Queued until back online`, and swap `.svc__note--free` for `.svc__note--warn` with an explanation.
+- Update the hero kicker (`ALL SERVICES LIVE`) and the matching Platforms chip.
+
+**Emblem turnaround times are not stated anywhere** — the tiles say "Taking orders" rather than a duration, because no timings were supplied. Replace those three `.ptier__time` values once you know them; every other service quotes a real number and this one looks vague by comparison.
 
 ## Theming
 

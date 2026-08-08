@@ -277,6 +277,23 @@ h1, h2, h3 {
 .svc--offline { opacity: .78; transition: opacity .3s, border-color .3s; }
 .svc--offline:hover { opacity: 1; }
 
+/* Flagship block — carries the eye before anything else on the page. */
+.svc--featured {
+  position: relative; margin-top: 12px;
+  border-color: rgba(59,130,246,.5);
+  background:
+    linear-gradient(180deg, rgba(59,130,246,.12), rgba(255,255,255,.012) 55%);
+  box-shadow: var(--shadow-up);
+}
+.svc--featured:hover { border-color: var(--acc); }
+.svc__flag {
+  position: absolute; top: -12px; left: 28px;
+  background: linear-gradient(135deg, var(--acc), var(--acc-deep)); color: #fff;
+  font-size: 11.5px; font-weight: 700; letter-spacing: .07em;
+  padding: 5px 14px; border-radius: 100px;
+  box-shadow: 0 8px 18px -8px rgba(59,130,246,1);
+}
+
 .svc__head {
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 20px; flex-wrap: wrap; margin-bottom: 28px;
