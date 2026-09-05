@@ -1,12 +1,16 @@
 # T's Services
 
-Single-page site for a Discord-based game services shop — PlayStation trophy packages, BO3 Liquid Divinium, BO2 emblem hosting. Static HTML/CSS/JS, no build step, no dependencies. Hosts free on GitHub Pages.
+Single-page pre-launch site for a Discord-based GTA shop — mod menu resale. Currently in a **coming soon** state: no lineup, no prices, nothing for sale. The menus are being arranged directly with their developers, and the page says so plainly instead of listing tiers that would only change later. The CTA collects interest.
+
+Static HTML/CSS/JS, no build step, no dependencies. Hosts free on GitHub Pages.
 
 ```
 index.html
 assets/css/style.css
 assets/js/main.js
 ```
+
+The logo is inline SVG in the nav, with a matching copy in the favicon `data:` URI in `<head>` — change both if you redraw it. There is no image asset to manage.
 
 ## Run it locally
 
@@ -46,9 +50,9 @@ Confirm that URL loads before touching DNS. If it works there, the site is fine 
 
 ### Still worth adding
 
-- **A "Do you need my account login?" FAQ entry.** Deliberately absent rather than guessed at — it's the most common buyer objection, and the answer is a commitment only you can make. Worth writing: what you need from a buyer, whether 2FA has to come off, and what happens to the credentials afterwards.
-- **Payment and refund terms**, same reasoning.
-- **Real vouches.** The invented ones were removed. If you add a testimonials section back, use genuine quotes from your server.
+- **The lineup.** Once the menus are arranged with their developers, replace the `.pending` panel in `#menus` with the real cards — names, prices, features. That is the one thing standing between this and a working shop.
+- **A refund answer.** The FAQ says "message us" about payment and says nothing about refunds, because that's a commitment only you can make. Licence keys are the awkward case: once issued they can't be un-issued.
+- **Real vouches.** The invented ones were removed. If you add a testimonials section back, use genuine quotes.
 - **A link-preview image** — see the Custom domain section.
 
 ---
@@ -93,12 +97,13 @@ Once GitHub shows **Enforce HTTPS** ticked and working, you *may* turn the proxy
 
 ### Link previews
 
-`index.html` carries Open Graph and Twitter card tags, so the link unfurls with a title and description when pasted into Discord — worth having when the invite is your main channel. The `theme-color` tints the left stripe of Discord's embed blue.
+`index.html` carries Open Graph and Twitter card tags, so the link unfurls with a title and description when pasted into Discord — worth having when a DM is your only channel. The `theme-color` tints the left stripe of Discord's embed pink.
 
-There's no preview **image** yet, because that needs a real 1200×630 PNG. If you want one, drop it at `assets/og.png` and add:
+There's no preview **image**, because that needs a real 1200×630 PNG (the card is declared `summary_large_image`). If you want one, drop it at `assets/og.png` and add:
 
 ```html
 <meta property="og:image" content="https://tservices.cc/assets/og.png" />
+<meta name="twitter:image" content="https://tservices.cc/assets/og.png" />
 ```
 
 The OG tags hardcode `https://tservices.cc/` — if the domain ever changes, update them along with `CNAME` and the `<link rel="canonical">`.
@@ -107,36 +112,48 @@ The OG tags hardcode `https://tservices.cc/` — if the domain ever changes, upd
 
 ## Content notes
 
-Everything on the page is real. Prices, times, platinum counts, package contents, the BO3 extras list and the emblem tiers all come straight from the service listings. Contact details are live: the invite is `discord.gg/reacters`, the handle is `tom1x1`, and the Originators contact is `reactors` — all three cards link to the invite.
+**Nothing on the page is invented.** There are no menu names, no prices and no feature lists, because the lineup isn't settled — you're sourcing from the developers directly. `#menus` is a single `.pending` panel that says exactly that. Everything else — the platform claims, the process, the FAQ, the disclaimers — is written to be true regardless of what you end up stocking.
 
-The only thing still generic is `<meta name="description">`, which is your search-result snippet.
+Earlier drafts of this page carried placeholder tiers (Entry / Standard / Premium), a **Tools & Jobs** section and a **What You Get** comparison table. All removed, along with their CSS and the click-to-pick JS. Nothing dead is left behind.
 
-### Service status toggles
+The `<meta name="description">` is your search-result snippet — rewrite it once the lineup is real.
 
-All three services are live. Emblem Hosting is the **flagship** — it sits first in the Services section with a `svc--featured` treatment (blue border, glow, "Flagship service" ribbon) and its $25 Max Slots tier is flagged Best Value.
+### Going live
 
-To promote a different service, move its `<article>` to the top of `#services` and swap the `svc--featured` class and `<span class="svc__flag">` onto it.
+To open for business you'll be adding the lineup, not just flipping switches. The switches, though:
 
-To take a service offline again:
+| Where | Now | When you open |
+|---|---|---|
+| `#menus` | one `.pending` panel | your real menu cards |
+| Hero kicker | `<span class="dot dot--soon">` + `<b class="is-soon">COMING SOON</b>` | `<span class="dot">` + `<b>IN STOCK</b>` |
+| Hero second CTA | "Why the Wait" → `#menus` | "See the Lineup" |
+| Nav + hero + `#contact` heading | "Join the List" | "Get Access" |
+| Hero `Launch` fact | "Not open yet" | delivery terms |
+| `#setup` step 01 | "Once the lineup is up…" | drop the preamble |
+| `#faq` | "When do you open?" entry | remove it |
+| `#contact` | three-line list template | add a product line |
 
-- `<article class="svc">` → `<article class="svc svc--offline">` (dims the block; the CSS is retained for this)
-- `<span class="badge badge--live">Online · Taking orders</span>` → `<span class="badge badge--off">Offline · Updating</span>`
-- Change the `.ptier__time` lines to something like `Queued until back online`, and swap `.svc__note--free` for `.svc__note--warn` with an explanation.
-- Update the hero kicker (`ALL SERVICES LIVE`) and the matching Platforms chip.
+`badge--live` (green) and `.dot` (green, pulsing) are still in the CSS for exactly this. A green pulsing dot over a shop that isn't open is the kind of detail people screenshot, so keep the kicker and the panel telling the same story.
 
-**Emblem turnaround times are not stated anywhere** — the tiles say "Taking orders" rather than a duration, because no timings were supplied. Replace those three `.ptier__time` values once you know them; every other service quotes a real number and this one looks vague by comparison.
+If you want click-to-pick back on the product cards, the JS hook was a `[data-service]` attribute on each CTA whose value got written into the `#contact` template. It was removed with the tiers; check the git history for the implementation.
 
 ## Theming
 
-All colors are CSS custom properties at the top of `style.css`. To shift the accent, change `--acc`, `--acc-hot`, `--acc-deep` and `--acc-soft` — everything else (buttons, gradients, focus rings, hovers, the logo) follows. `--cy` is the cyan used for live badges and checkmarks.
+All colors are CSS custom properties at the top of `style.css`. To shift the accent, change `--pink`, `--pink-lo` and `--pink-glow` — buttons, gradients, focus rings, hovers, the outlined hero type and the logo all follow. `--green` is the in-stock badge and the pulsing status dot; `--amber` is the risk notice and the out-of-stock badge.
 
-The logo is inline SVG in the nav plus a duplicate in the favicon `data:` URI in `<head>` — change both if you redraw it.
+Type is three Google fonts: **Anton** for the slab headings, **Barlow** for body, **IBM Plex Mono** for the eyebrows and the handle. They're set as `--display`, `--body` and `--mono`; change the `<link>` in `<head>` if you swap any of them.
+
+The hero's outlined word uses `-webkit-text-stroke`, which every current browser supports but which renders as solid fill if it ever isn't; that degrades fine.
+
+If you shift `--pink`, update `<meta name="theme-color">` in `<head>` to match — it tints the stripe on Discord link previews.
 
 ## Ordering: Discord, not a form
 
 There is no contact form and that's deliberate — GitHub Pages serves static files only, so a form would have needed a third-party backend, and a form that silently drops orders is worse than no form.
 
-Instead, `#contact` is an order card: a four-point checklist of what to send, a button straight to `discord.gg/reacters`, and a **Copy order template** button that puts a pre-filled message on the clipboard. Clicking any price tile writes that package into line 1 of the template, so most people arrive in the server with a complete order already pasted.
+Instead, `#contact` is a sign-up card: the handle `tom1x1` with a **Copy handle** button, a three-point checklist of what to send, and a **Copy message template** button that puts a pre-filled message on the clipboard. Nothing submits anywhere — the buttons just hand people text to paste into a DM.
+
+There is no server invite. Intake is the handle only — if you later want a server link back, add it as a second `.handle` block rather than turning the handle into a link, because the copy button is what makes a bare handle usable.
 
 The copy button uses the async Clipboard API with an `execCommand` fallback, and shows an amber "copy it manually" message if both are blocked. The Clipboard API needs a secure context, so it works on `https://` and `localhost` but not from a bare `file://` path — that's a local-preview quirk, not a production one.
 
@@ -146,8 +163,9 @@ If you later want orders by email instead, [Formspree](https://formspree.io) is 
 
 These are real, not boilerplate — read them.
 
-- **The services are outside Sony's and Activision's ToS.** The site says so plainly in the Platforms section, in the "Is there a ban risk?" FAQ, on the order checkbox and in the footer. Keep that language. Sellers who promise "100% safe, no ban risk" are the ones who get charged back, reported and removed. Honesty here is also your best defence in a payment dispute.
-- **You're asking strangers for account credentials.** That makes you a target for chargebacks and impersonation, and makes your buyers targets for anyone impersonating *you*. Whatever process you use, document it in that FAQ answer.
-- **Payment processors kill accounts over this.** PayPal in particular treats game-account services as prohibited and will freeze balances. Plan for it.
-- **"We're the only ones who provide this service"** (the BO2 emblem tool) is on the page as a marketing claim. Make sure you can stand behind it.
-- **No Sony or Activision assets are used** — no logos, key art, fonts or screenshots. The look is generic tech so it reads the part without the takedown risk. Keep it that way, and keep the footer disclaimer.
+- **Take-Two sues mod menu sellers, and wins.** This is the material difference from the old trophy business. Take-Two has taken direct legal action against menu operators and resellers — Elusive and Absolute are the well-known ones — and shut them down. Resale is a smaller target than authorship, but it is the same target. Know what you're standing in front of.
+- **Never claim "undetected".** The site deliberately says the opposite, in the risk notice under `#menus`, in the "Will I get banned?" FAQ and in the footer. Keep that language. Sellers who promise a permanently safe menu are the ones who get charged back, reported and removed, and honesty here is your best defence in a payment dispute.
+- **No work aimed at other players.** The FAQ and footer both say you don't take work targeting other people's accounts, sessions or connections. That line is doing real work: crashers, kickers and connection tools are what turns a ToS problem into a criminal-liability problem, and they're the fastest route to a platform-level report. If you decide to sell that anyway, the line has to come off the page — don't leave a promise up that you're not keeping.
+- **Account credentials.** If any of your jobs need buyer logins, that makes you a target for chargebacks and impersonation, and your buyers targets for anyone impersonating *you*. There's no FAQ entry for it yet because the answer is yours to write.
+- **Payment processors kill accounts over this.** PayPal in particular treats game-modification sales as prohibited and will freeze balances. Plan for it.
+- **No Rockstar or Take-Two assets are used** — no logos, key art, fonts or screenshots. The pink-and-black look reads Los Santos without borrowing anything ownable. Keep it that way, and keep the footer disclaimer.

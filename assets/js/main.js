@@ -46,7 +46,7 @@
     revealables.forEach(function (el) { el.classList.add('in'); });
   } else {
     var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry, i) {
+      entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
         var el = entry.target;
         // Stagger siblings so grids cascade instead of popping at once.
@@ -59,39 +59,8 @@
     revealables.forEach(function (el) { io.observe(el); });
   }
 
-  /* ---- animated hero counters ---- */
-  var counters = document.querySelectorAll('[data-count]');
-  function runCounter(el) {
-    var target = parseFloat(el.dataset.count);
-    var decimals = parseInt(el.dataset.decimals || '0', 10);
-    var suffix = el.dataset.suffix || '';
-    if (reduced) { el.textContent = target.toFixed(decimals) + suffix; return; }
-
-    var start = performance.now();
-    var dur = 1400;
-    (function tick(now) {
-      var p = Math.min((now - start) / dur, 1);
-      var eased = 1 - Math.pow(1 - p, 3);
-      el.textContent = (target * eased).toFixed(decimals) + suffix;
-      if (p < 1) requestAnimationFrame(tick);
-    })(start);
-  }
-
-  if ('IntersectionObserver' in window) {
-    var co = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        if (!entry.isIntersecting) return;
-        runCounter(entry.target);
-        co.unobserve(entry.target);
-      });
-    }, { threshold: 0.5 });
-    counters.forEach(function (el) { co.observe(el); });
-  } else {
-    counters.forEach(runCounter);
-  }
-
   /* ---- active section in nav ---- */
-  var sectionIds = ['services', 'platforms', 'process', 'faq'];
+  var sectionIds = ['menus', 'setup', 'faq'];
   var navMap = {};
   sectionIds.forEach(function (id) {
     navMap[id] = document.querySelector('.nav__links a[href="#' + id + '"]');
@@ -116,37 +85,9 @@
     });
   }
 
-  /* ---- price tiles record your pick ----
-     Intake is Discord, so a tile click just fills the readout in the order
-     card (and the copy template) rather than submitting anything. */
-  var picked = document.getElementById('pickedPackage');
-  var pickedValue = '';
-
-  document.querySelectorAll('.ptier[data-service]').forEach(function (tile) {
-    tile.addEventListener('click', function () {
-      if (!picked) return;
-      pickedValue = tile.dataset.service;
-      picked.textContent = pickedValue;
-      picked.classList.add('pick--set');
-      // Flash so it's obvious the tap registered before the page scrolls.
-      picked.classList.add('pick--flash');
-      setTimeout(function () { picked.classList.remove('pick--flash'); }, 1200);
-    });
-  });
-
-  /* ---- copy an order template to paste into Discord ---- */
-  var copyBtn = document.getElementById('copyOrder');
-  var copyNote = document.getElementById('copyNote');
-
-  function buildTemplate() {
-    return [
-      'Package: ' + (pickedValue || '(which one?)'),
-      'Platform: ',
-      'Handle: ',
-      'Extras: '
-    ].join('\n');
-  }
-
+  /* ---- clipboard helpers ----
+     Intake is a Discord DM, so nothing on the page submits anywhere — the
+     buttons just hand you text to paste into the conversation. */
   function fallbackCopy(text) {
     var ta = document.createElement('textarea');
     ta.value = text;
@@ -160,24 +101,72 @@
     return ok;
   }
 
-  function reportCopy(ok) {
-    copyNote.textContent = ok
-      ? 'Copied — paste it straight into Discord.'
-      : 'Couldn’t copy automatically. Select the four lines above and copy them manually.';
+  function copy(text, done) {
+    if (!navigator.clipboard || !window.isSecureContext) {
+      done(fallbackCopy(text));
+      return;
+    }
+
+    // writeText can sit pending forever if the document loses focus mid-click,
+    // which would leave the button silent. Report either way, but only once.
+    var settled = false;
+    function settle(ok) {
+      if (settled) return;
+      settled = true;
+      done(ok);
+    }
+
+    var bail = setTimeout(function () { settle(fallbackCopy(text)); }, 1200);
+
+    navigator.clipboard.writeText(text).then(
+      function () { clearTimeout(bail); settle(true); },
+      function () { clearTimeout(bail); settle(fallbackCopy(text)); }
+    );
+  }
+
+  /* ---- copy the Discord handle ---- */
+  var handleBtn = document.getElementById('copyHandle');
+  var handleValue = document.getElementById('handleValue');
+  var copyNote = document.getElementById('copyNote');
+
+  function report(ok, okText, errText) {
+    if (!copyNote) return;
+    copyNote.textContent = ok ? okText : errText;
     copyNote.className = 'order-card__status ' + (ok ? 'ok' : 'err');
+  }
+
+  if (handleBtn && handleValue) {
+    handleBtn.addEventListener('click', function () {
+      copy(handleValue.textContent.trim(), function (ok) {
+        report(
+          ok,
+          'Handle copied — search it on Discord.',
+          'Couldn’t copy. The handle is written just above.'
+        );
+      });
+    });
+  }
+
+  /* ---- copy a message template to paste into the DM ---- */
+  var copyBtn = document.getElementById('copyOrder');
+
+  function buildTemplate() {
+    return [
+      'Launcher: ',
+      'Handle: ',
+      'What I want: '
+    ].join('\n');
   }
 
   if (copyBtn) {
     copyBtn.addEventListener('click', function () {
-      var text = buildTemplate();
-      if (navigator.clipboard && window.isSecureContext) {
-        navigator.clipboard.writeText(text).then(
-          function () { reportCopy(true); },
-          function () { reportCopy(fallbackCopy(text)); }
+      copy(buildTemplate(), function (ok) {
+        report(
+          ok,
+          'Copied — paste it straight into the DM.',
+          'Couldn’t copy automatically. Send the three lines above manually.'
         );
-      } else {
-        reportCopy(fallbackCopy(text));
-      }
+      });
     });
   }
 })();
