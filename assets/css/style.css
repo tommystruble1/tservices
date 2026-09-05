@@ -761,6 +761,8 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .variant__cta { min-width: 118px; }
 
 .product__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.product__brand { display: flex; align-items: center; gap: 10px; }
+.product__mark { flex: none; display: block; filter: drop-shadow(0 0 6px rgba(255,47,107,.45)); }
 .product__name {
   font-family: var(--display);
   font-size: 17px;

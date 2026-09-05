@@ -267,6 +267,12 @@ cards flow in the grid beneath it. **The displayed price and `data-price` are tw
 strings** — change one and you must change the other, or the cart charges something different
 from what the page advertises.
 
+Tsumi carries a small mark beside its name: 罪 ("sin"), set as SVG `<text>` with an
+`feGaussianBlur`/`feMerge` filter for a neon-sign glow. It's typography and an SVG filter only —
+no image file, no font embed beyond the system CJK fallback stack, and nothing borrowed from
+Rockstar. Same pattern as the nav logo: inline, no asset to manage. Give other products the same
+treatment by copying `.product__brand` and swapping the glyph, filter id and glow colour.
+
 **If you change what's in stock, four other places say so** and will contradict you if you miss
 them: the panel badge and its paragraph, the hero `Stock` fact, the ticker, and the
 "When do you open?" FAQ answer.

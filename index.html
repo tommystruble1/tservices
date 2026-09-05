@@ -201,7 +201,29 @@
                  the price shown beside it. -->
             <li class="product product--live product--wide">
               <div class="product__top">
-                <p class="product__name">Tsumi</p>
+                <div class="product__brand">
+                  <!-- Tsumi's mark: 罪 ("sin"/"crime") rendered as a neon sign, in
+                       the spirit of a night-city glow — not a screenshot, not a
+                       Rockstar character, nothing borrowed. Purely typography
+                       and an SVG filter, same as the nav logo elsewhere. -->
+                  <svg class="product__mark" viewBox="0 0 64 64" width="30" height="30"
+                       aria-hidden="true" focusable="false">
+                    <defs>
+                      <filter id="tsumiGlow" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur stdDeviation="2.4" result="blur" />
+                        <feMerge>
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="blur" />
+                          <feMergeNode in="SourceGraphic" />
+                        </feMerge>
+                      </filter>
+                    </defs>
+                    <text x="32" y="47" text-anchor="middle" filter="url(#tsumiGlow)"
+                          font-size="46" font-weight="700" fill="#ff2f6b"
+                          font-family="'Noto Sans JP','Hiragino Kaku Gothic Pro','Yu Gothic','Microsoft YaHei',sans-serif">罪</text>
+                  </svg>
+                  <p class="product__name">Tsumi</p>
+                </div>
                 <span class="badge badge--live">In stock</span>
               </div>
               <p class="product__meta">GTA Online · PC · Licence key</p>
