@@ -60,7 +60,7 @@
   }
 
   /* ---- active section in nav ---- */
-  var sectionIds = ['menus', 'setup', 'faq'];
+  var sectionIds = ['products', 'partners', 'faq', 'support'];
   var navMap = {};
   sectionIds.forEach(function (id) {
     navMap[id] = document.querySelector('.nav__links a[href="#' + id + '"]');
@@ -82,6 +82,50 @@
     sectionIds.forEach(function (id) {
       var el = document.getElementById(id);
       if (el) so.observe(el);
+    });
+  }
+
+  /* ---- product category rail ----
+     A vertical tablist: clicking a category swaps the panel beside it. Arrow
+     keys move between categories, per the ARIA tabs pattern, so it works
+     without a mouse. Panels are wired by aria-controls, so adding a category
+     is markup only. */
+  var rail = document.querySelector('.catalog__rail');
+  if (rail) {
+    var tabs = Array.prototype.slice.call(rail.querySelectorAll('[role="tab"]'));
+
+    function selectTab(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.classList.toggle('is-active', on);
+        t.setAttribute('aria-selected', String(on));
+        // Only the selected tab is in the tab order; arrows move within the rail.
+        t.tabIndex = on ? 0 : -1;
+
+        var panel = document.getElementById(t.getAttribute('aria-controls'));
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () { selectTab(tab, false); });
+    });
+
+    rail.addEventListener('keydown', function (e) {
+      var i = tabs.indexOf(document.activeElement);
+      if (i === -1) return;
+
+      var next = null;
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = tabs[(i + 1) % tabs.length];
+      else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (e.key === 'Home') next = tabs[0];
+      else if (e.key === 'End') next = tabs[tabs.length - 1];
+
+      if (next) {
+        e.preventDefault();
+        selectTab(next, true);
+      }
     });
   }
 

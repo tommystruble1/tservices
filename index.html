@@ -4,25 +4,25 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>T's Services — GTA Mod Menus</title>
-<meta name="description" content="GTA mod menus on PC, coming soon. The lineup is being finalised with the developers. Get on the list for first access." />
-<meta name="theme-color" content="#ff2d78" />
+<meta name="description" content="GTA mod menus for PC. Tsumi in stock now, more being arranged direct with their developers. Setup help and real support included." />
+<meta name="theme-color" content="#2fe3f5" />
 <link rel="canonical" href="https://tservices.cc/" />
 
 <!-- Link preview (Discord, Twitter, iMessage). theme-color tints Discord's embed stripe. -->
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="T's Services" />
 <meta property="og:url" content="https://tservices.cc/" />
-<meta property="og:title" content="T's Services — GTA mod menus, coming soon" />
-<meta property="og:description" content="Menus for GTA on PC. Lineup being finalised with the developers. Get on the list for first access." />
+<meta property="og:title" content="T's Services — GTA mod menus" />
+<meta property="og:description" content="Menus for GTA on PC. Tsumi in stock now, more on the way. Setup help and real support included." />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="twitter:title" content="T's Services — GTA mod menus, coming soon" />
-<meta name="twitter:description" content="Menus for GTA on PC. Lineup being finalised with the developers. Get on the list for first access." />
+<meta name="twitter:title" content="T's Services — GTA mod menus" />
+<meta name="twitter:description" content="Menus for GTA on PC. Tsumi in stock now, more on the way. Setup help and real support included." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="assets/css/style.css" />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%23ff6aa4'/><stop offset='1' stop-color='%23ff2d78'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%230a0a0d'/><rect x='3' y='3' width='58' height='58' rx='12' fill='none' stroke='url(%23g)' stroke-width='3'/><path d='M18 22h28M32 22v24' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></svg>" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='%232fe3f5'/><stop offset='1' stop-color='%237c6cff'/></linearGradient></defs><rect width='64' height='64' rx='14' fill='%230a0a0d'/><rect x='3' y='3' width='58' height='58' rx='12' fill='none' stroke='url(%23g)' stroke-width='3'/><path d='M18 22h28M32 22v24' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></svg>" />
 </head>
 <body>
 
@@ -34,8 +34,8 @@
         <svg viewBox="0 0 64 64" width="32" height="32">
           <defs>
             <linearGradient id="tsMark" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stop-color="#ff6aa4" />
-              <stop offset="1" stop-color="#ff2d78" />
+              <stop offset="0" stop-color="#2fe3f5" />
+              <stop offset="1" stop-color="#7c6cff" />
             </linearGradient>
           </defs>
           <rect x="2" y="2" width="60" height="60" rx="13" fill="none" stroke="url(#tsMark)" stroke-width="3" />
@@ -46,10 +46,37 @@
     </a>
 
     <nav class="nav__links" id="navLinks" aria-label="Main">
-      <a href="#menus">Menus</a>
-      <a href="#setup">Setup</a>
-      <a href="#faq">FAQ</a>
-      <a class="btn btn--sm btn--primary" href="#contact">Join the List</a>
+      <a href="#top" data-i18n="nav.home">Home</a>
+      <a href="#products" data-i18n="nav.products">Products</a>
+      <a href="#partners" data-i18n="nav.partners">Partners</a>
+      <a href="#faq" data-i18n="nav.faq">FAQ</a>
+      <a href="#support" data-i18n="nav.support">Support</a>
+
+      <div class="nav__tools">
+        <!-- Language menu. Options are built by i18n.js from its dictionary. -->
+        <div class="langpick">
+          <button class="langpick__btn" type="button" id="langBtn"
+                  aria-expanded="false" aria-controls="langMenu" aria-haspopup="listbox">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18" />
+            </svg>
+            <span id="langCurrent">EN</span>
+          </button>
+          <ul class="langpick__menu" id="langMenu" role="listbox" aria-label="Choose language" hidden></ul>
+        </div>
+
+        <button class="cartbtn" type="button" id="cartBtn" aria-controls="cartDrawer" aria-expanded="false">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+            <path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.55L21 7H6" stroke-linecap="round" stroke-linejoin="round" />
+            <circle cx="10" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" />
+          </svg>
+          <span class="cartbtn__label" data-i18n="nav.cart">Cart</span>
+          <span class="cartbtn__count" id="cartCount" hidden>0</span>
+        </button>
+
+        <a class="btn btn--sm btn--primary" href="#account" data-i18n="nav.signIn">Sign In</a>
+      </div>
     </nav>
 
     <button class="nav__toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Toggle menu">
@@ -67,22 +94,22 @@
 
   <div class="wrap hero__inner">
     <div>
-      <p class="kicker"><span class="dot dot--soon"></span> STATUS: <b class="is-soon">COMING SOON</b></p>
+      <p class="kicker"><span class="dot"></span> <span data-i18n="hero.kicker">Trusted by many</span></p>
 
-      <h1 class="hero__title">
-        LOS SANTOS,<br />
-        <span class="hl">UNLOCKED.</span>
+      <h1 class="hero__title" data-i18n-html="hero.title">
+        Best products at<br />
+        your <span class="hl">fingertips.</span>
       </h1>
 
-      <p class="hero__lede">
-        GTA mod menus, resold with setup help and a direct line to a real person.
-        PC only. Not open yet — get on the list and you'll hear from us first,
-        with an honest word about the risk before you spend anything.
-      </p>
+      <ul class="hero__trust">
+        <li data-i18n="hero.trust1">Instant delivery</li>
+        <li data-i18n="hero.trust2">Secure checkout</li>
+        <li data-i18n="hero.trust3">Real support 24/7</li>
+      </ul>
 
       <div class="hero__cta">
-        <a class="btn btn--primary btn--lg" href="#contact">Join the List</a>
-        <a class="btn btn--ghost btn--lg" href="#menus">Why the Wait</a>
+        <a class="btn btn--primary btn--lg" href="#products" data-i18n="hero.ctaShop">Browse Products</a>
+        <a class="btn btn--ghost btn--lg" href="#account" data-i18n="hero.ctaAccount">Create an Account</a>
       </div>
     </div>
 
@@ -92,8 +119,8 @@
         <span class="fact__val">PC only — Rockstar, Steam and Epic builds</span>
       </li>
       <li class="fact">
-        <span class="fact__key">Launch</span>
-        <span class="fact__val">Not open yet — the list gets first access</span>
+        <span class="fact__key">Stock</span>
+        <span class="fact__val">Tsumi available now, more on the way</span>
       </li>
       <li class="fact">
         <span class="fact__key">Setup</span>
@@ -109,38 +136,154 @@
   <div class="ticker" aria-hidden="true">
     <div class="ticker__track">
       <span>MOD MENUS</span><span>&#9670;</span><span>GTA ONLINE</span><span>&#9670;</span><span>PC ONLY</span><span>&#9670;</span>
-      <span>SETUP INCLUDED</span><span>&#9670;</span><span>COMING SOON</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
+      <span>SETUP INCLUDED</span><span>&#9670;</span><span>TSUMI IN STOCK</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
       <span>MOD MENUS</span><span>&#9670;</span><span>GTA ONLINE</span><span>&#9670;</span><span>PC ONLY</span><span>&#9670;</span>
-      <span>SETUP INCLUDED</span><span>&#9670;</span><span>COMING SOON</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
+      <span>SETUP INCLUDED</span><span>&#9670;</span><span>TSUMI IN STOCK</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
     </div>
   </div>
 </section>
 
-<!-- ===== MENUS ===== -->
-<section class="section" id="menus">
+<!-- ===== PRODUCTS =====
+     EDIT ME: the category rail is a tablist. To add a category, add a <button
+     role="tab"> to .catalog__rail and a matching <div role="tabpanel"> to
+     .catalog__panels — the id/aria-controls/aria-labelledby pairs must match,
+     and main.js picks the rest up on its own. -->
+<section class="section" id="products">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="sec-head__tag">01 — The Lineup</p>
-      <h2 class="sec-head__title">Mod Menus</h2>
+      <p class="sec-head__tag">01 — Products</p>
+      <h2 class="sec-head__title" data-i18n="sec.products">What We Sell</h2>
       <p class="sec-head__sub">
-        Nothing is listed yet, and that's deliberate — we're not selling a menu until we've
-        actually got it in hand.
+        Pick a category. Only what we can actually supply is listed as in stock —
+        anything offline says so.
       </p>
     </header>
 
-    <div class="pending reveal">
-      <span class="badge badge--soon">In progress</span>
-      <h3 class="pending__title">Sourcing direct from the developers</h3>
-      <p class="pending__body">
-        We're arranging the menus with the people who build them rather than buying keys off a
-        reseller chain. That takes as long as it takes, so there's no lineup and no price list
-        on this page yet — putting fake tiers up would just mean changing them later.
-      </p>
-      <p class="pending__body">
-        When it's settled you'll get the actual menus, what each one does, and what each one
-        costs. Get on the list and you'll see it before it goes public.
-      </p>
-      <a class="btn btn--primary btn--lg pending__cta" href="#contact">Join the List</a>
+    <div class="catalog reveal">
+
+      <!-- ---------- category rail ---------- -->
+      <div class="catalog__rail" role="tablist" aria-orientation="vertical" aria-label="Product categories">
+        <button class="cat is-active" type="button" role="tab"
+                id="cat-gta" aria-controls="panel-gta" aria-selected="true">
+          <span class="cat__name">GTA</span>
+          <span class="cat__meta">GTA Online · PC</span>
+        </button>
+
+        <!-- Not a tab: a visible slot for the next game, with nothing invented in it.
+             When you add one, make it a real <button role="tab"> like the one above. -->
+        <p class="cat cat--empty">
+          <span class="cat__name">More games</span>
+          <span class="cat__meta">Not yet</span>
+        </p>
+      </div>
+
+      <!-- ---------- panels ---------- -->
+      <div class="catalog__panels">
+
+        <div class="catpanel" role="tabpanel" id="panel-gta" aria-labelledby="cat-gta" tabindex="0">
+          <span class="badge badge--live">Tsumi in stock</span>
+          <h3 class="catpanel__title">Sourcing direct from the developers</h3>
+          <p class="catpanel__body">
+            GTA is the only thing we're doing for now, and doing it properly matters more than
+            doing more. We arrange menus with the people who build them rather than buying keys
+            off a reseller chain. <b>Tsumi is available now</b> — the rest are offline until those
+            arrangements are done, and they'll say so here rather than quietly taking your money.
+          </p>
+
+          <p class="catpanel__label">The lineup</p>
+
+          <!-- EDIT ME: when a menu is priced and ready, drop the price into
+               .product__price and swap the "Notify me" link for the add-to-cart
+               button shown in the comment inside the first card. -->
+          <ul class="products">
+            <!-- LIVE. Each duration is its own cart line: the data-id is the cart
+                 key, so it must stay unique and stable, and data-price must match
+                 the price shown beside it. -->
+            <li class="product product--live product--wide">
+              <div class="product__top">
+                <p class="product__name">Tsumi</p>
+                <span class="badge badge--live">In stock</span>
+              </div>
+              <p class="product__meta">GTA Online · PC · Licence key</p>
+
+              <ul class="variants">
+                <li class="variant">
+                  <div class="variant__info">
+                    <p class="variant__name">1 week</p>
+                    <p class="variant__meta">Seven days</p>
+                  </div>
+                  <p class="variant__price">$7.00</p>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="tsumi-week"
+                          data-name="Tsumi — 1 week" data-price="7.00">Add to cart</button>
+                </li>
+
+                <li class="variant">
+                  <div class="variant__info">
+                    <p class="variant__name">1 month</p>
+                    <p class="variant__meta">Thirty days</p>
+                  </div>
+                  <p class="variant__price">$17.99</p>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="tsumi-month"
+                          data-name="Tsumi — 1 month" data-price="17.99">Add to cart</button>
+                </li>
+
+                <li class="variant variant--best">
+                  <div class="variant__info">
+                    <p class="variant__name">Lifetime <span class="variant__flag">Best value</span></p>
+                    <p class="variant__meta">One payment, no renewals</p>
+                  </div>
+                  <p class="variant__price">$40.00</p>
+                  <button class="btn btn--primary btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="tsumi-lifetime"
+                          data-name="Tsumi — Lifetime" data-price="40.00">Add to cart</button>
+                </li>
+              </ul>
+            </li>
+
+            <li class="product is-off">
+              <div class="product__top">
+                <p class="product__name">Overdose</p>
+                <span class="badge badge--off">Offline</span>
+              </div>
+              <p class="product__meta">GTA Online · PC</p>
+              <p class="product__price">Not available</p>
+              <a class="btn btn--ghost btn--sm product__cta" href="#account">Notify me</a>
+            </li>
+
+            <li class="product is-off">
+              <div class="product__top">
+                <p class="product__name">Cherax</p>
+                <span class="badge badge--off">Offline</span>
+              </div>
+              <p class="product__meta">GTA Online · PC</p>
+              <p class="product__price">Not available</p>
+              <a class="btn btn--ghost btn--sm product__cta" href="#account">Notify me</a>
+            </li>
+
+            <li class="product is-off">
+              <div class="product__top">
+                <p class="product__name">Atlas</p>
+                <span class="badge badge--off">Offline</span>
+              </div>
+              <p class="product__meta">GTA Online · PC</p>
+              <p class="product__price">Not available</p>
+              <a class="btn btn--ghost btn--sm product__cta" href="#account">Notify me</a>
+            </li>
+          </ul>
+
+          <p class="catpanel__body">
+            After one that isn't listed? Say so and it shapes what we go and get.
+          </p>
+
+          <div class="catpanel__actions">
+            <a class="btn btn--primary btn--lg" href="#account">Create an Account</a>
+            <a class="btn btn--ghost btn--lg" href="#support">Ask on Discord</a>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <p class="notice notice--warn reveal">
@@ -152,12 +295,44 @@
   </div>
 </section>
 
-<!-- ===== SETUP ===== -->
-<section class="section section--alt" id="setup">
+<!-- ===== PARTNERS =====
+     EDIT ME: once a deal is signed, replace the .pending panel below with a
+     .partners grid of .partner cards — one per developer you carry. Do not
+     list anyone you haven't actually agreed terms with. -->
+<section class="section section--alt" id="partners">
   <div class="wrap">
     <header class="sec-head reveal">
-      <p class="sec-head__tag">02 — How it runs</p>
-      <h2 class="sec-head__title">Buy to Launch</h2>
+      <p class="sec-head__tag">02 — Partners</p>
+      <h2 class="sec-head__title" data-i18n="sec.partners">Who We Work With</h2>
+      <p class="sec-head__sub">
+        We deal with the people who build the menus, not a chain of resellers marking each
+        other up.
+      </p>
+    </header>
+
+    <div class="pending reveal">
+      <span class="badge badge--soon">Being finalised</span>
+      <h3 class="pending__title">Deals in progress</h3>
+      <p class="pending__body">
+        Nobody is listed here yet because nothing is signed yet. When a developer agrees to
+        work with us, they go on this page by name — not before. A partner list padded out
+        with logos we have no arrangement with would tell you nothing.
+      </p>
+      <p class="pending__body">
+        <b>Build menus?</b> If you're a developer looking for a reseller who'll represent your
+        work properly and handle support first-line, get in touch — we'd rather talk directly.
+      </p>
+      <a class="btn btn--ghost btn--lg pending__cta" href="#support">Talk to Us</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SETUP ===== -->
+<section class="section" id="setup">
+  <div class="wrap">
+    <header class="sec-head reveal">
+      <p class="sec-head__tag">03 — How it runs</p>
+      <h2 class="sec-head__title" data-i18n="sec.setup">Buy to Launch</h2>
       <p class="sec-head__sub">How it'll work once we open. Four steps, and you're on the list for step one now.</p>
     </header>
 
@@ -187,11 +362,11 @@
 </section>
 
 <!-- ===== FAQ ===== -->
-<section class="section" id="faq">
+<section class="section section--alt" id="faq">
   <div class="wrap wrap--narrow">
     <header class="sec-head reveal">
-      <p class="sec-head__tag">03 — Straight answers</p>
-      <h2 class="sec-head__title">FAQ</h2>
+      <p class="sec-head__tag">04 — Straight answers</p>
+      <h2 class="sec-head__title" data-i18n="sec.faq">FAQ</h2>
     </header>
 
     <div class="faq">
@@ -207,7 +382,7 @@
 
       <details class="faq__item reveal">
         <summary>When do you open?</summary>
-        <div class="faq__body"><p>No date yet, and we'd rather say that than invent one. We're arranging the menus directly with their developers, and that isn't finished. Get on the list and you'll hear from us before anyone else — that's the whole point of it.</p></div>
+        <div class="faq__body"><p>Tsumi is available now. The others are still being arranged directly with their developers, and we would rather say "not yet" than put up a product we cannot actually supply. Make an account and you will hear the moment one comes online.</p></div>
       </details>
 
       <details class="faq__item reveal">
@@ -234,17 +409,104 @@
 </section>
 
 <!-- ===== CONTACT ===== -->
-<section class="section section--alt cta" id="contact">
+<!-- ===== ACCOUNT ===== -->
+<section class="section" id="account">
+  <div class="wrap wrap--narrow">
+    <header class="sec-head sec-head--center reveal">
+      <p class="sec-head__tag">05 — Your account</p>
+      <h2 class="sec-head__title" data-i18n="sec.account">Sign In</h2>
+      <p class="sec-head__sub">
+        An account here is how you'll get your licence keys, downloads and order history
+        once we open.
+      </p>
+    </header>
+
+    <div class="account reveal">
+
+      <!-- Not switched on yet -->
+      <div class="account__state" id="authUnconfigured" hidden>
+        <span class="badge badge--soon">Not open yet</span>
+        <p class="account__lede">
+          Accounts go live at the same time as the shop. Nothing to sign up for yet —
+          <a class="link" href="#support">message us on Discord</a> and we'll tell you when it opens.
+        </p>
+      </div>
+
+      <!-- Checking a saved session -->
+      <div class="account__state" id="authLoading" hidden>
+        <p class="account__lede">Checking your session…</p>
+      </div>
+
+      <!-- Signed out: the form -->
+      <div class="account__state" id="authSignedOut" hidden>
+        <h3 class="account__title" id="authFormTitle">Sign in</h3>
+        <p class="account__lede" id="authFormHint"></p>
+
+        <form class="authform" id="authForm" novalidate>
+          <label class="authfield">
+            <span class="authfield__label">Email</span>
+            <input class="authfield__input" type="email" id="authEmail" name="email"
+                   autocomplete="email" required />
+          </label>
+
+          <label class="authfield">
+            <span class="authfield__label">Password</span>
+            <input class="authfield__input" type="password" id="authPassword" name="password"
+                   autocomplete="current-password" required />
+          </label>
+
+          <p class="authfield__hint" id="authPwHint" hidden>At least 8 characters.</p>
+
+          <p class="authmsg" id="authMessage" role="status" aria-live="polite"></p>
+
+          <button class="btn btn--primary btn--lg account__btn" type="submit" id="authSubmit">Sign in</button>
+        </form>
+
+        <div class="account__links">
+          <button class="linkbtn" type="button" id="authToggle"></button>
+          <button class="linkbtn" type="button" id="authForgot">Forgot password?</button>
+        </div>
+      </div>
+
+      <!-- Signed in -->
+      <div class="account__state" id="authSignedIn" hidden>
+        <div class="account__who">
+          <span class="account__avatar" id="authInitial" aria-hidden="true"></span>
+          <div class="account__whotext">
+            <p class="account__hello">Signed in as</p>
+            <p class="account__name" id="authWho"></p>
+          </div>
+          <button class="btn btn--ghost btn--sm account__signout" type="button" id="authSignOut">Sign out</button>
+        </div>
+
+        <div class="account__panel">
+          <span class="badge badge--soon">No orders yet</span>
+          <p class="account__lede">
+            The shop hasn't opened, so there's nothing here yet. Once you've bought a menu,
+            your licence key, download and setup notes will appear on this page.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== SUPPORT ===== -->
+<section class="section section--alt cta" id="support">
   <div class="cta__glow" aria-hidden="true"></div>
   <div class="wrap wrap--narrow">
     <header class="sec-head sec-head--center reveal">
-      <p class="sec-head__tag">04 — Comms</p>
-      <h2 class="sec-head__title">Join the List</h2>
-      <p class="sec-head__sub">One handle, one conversation. Add it on Discord and send the four lines below.</p>
+      <p class="sec-head__tag">06 — Support</p>
+      <h2 class="sec-head__title" data-i18n="sec.support">Need a Hand?</h2>
+      <p class="sec-head__sub">
+        Your account is the main way in. Discord is here for when you'd rather just ask
+        a person — install trouble, a question before you buy, or anything the site can't answer.
+      </p>
     </header>
 
     <div class="order-card reveal">
-      <p class="order-card__eyebrow">Takes about a minute</p>
+      <p class="order-card__eyebrow">Optional — only if you need it</p>
       <h3 class="order-card__title">Message on Discord</h3>
 
       <div class="handle">
@@ -254,25 +516,24 @@
       </div>
 
       <p class="order-card__lede">
-        Send these three things and you're on the list — we'll message you with the lineup and
-        prices as soon as they're settled.
+        There's no ticket queue and no bot — it's a direct message to a real person. If you're
+        writing about an order, these three lines save a round trip.
       </p>
 
       <ol class="order-steps">
         <li><b>Launcher</b><span>Rockstar, Steam or Epic</span></li>
-        <li><b>Your handle</b><span>So we know who we're replying to</span></li>
-        <li><b>What you want</b><span>A specific menu, a budget, or just "let me know"</span></li>
+        <li><b>Account email</b><span>So we can find your order</span></li>
+        <li><b>What's up</b><span>The problem, or the question</span></li>
       </ol>
 
       <div class="order-card__actions">
-        <button class="btn btn--primary btn--lg" type="button" id="copyOrder">Copy message template</button>
+        <button class="btn btn--ghost btn--lg" type="button" id="copyOrder">Copy message template</button>
       </div>
       <p class="order-card__status" id="copyNote" role="status"></p>
 
       <p class="order-card__fine">
-        Joining the list costs nothing and commits you to nothing. When we do open, ordering means
-        you accept that modding GTA falls outside Rockstar Games' terms of service, that bans and
-        wipes are possible outcomes, and that the risk sits with your own account.
+        We'll never ask for your password over Discord, and we'll never DM you first asking for
+        one. Anyone who does is not us.
       </p>
     </div>
   </div>
@@ -288,10 +549,11 @@
       <p>GTA mod menus, resold and supported. Opening soon.</p>
     </div>
     <nav class="footer__links" aria-label="Footer">
-      <a href="#menus">Menus</a>
-      <a href="#setup">Setup</a>
+      <a href="#products">Products</a>
+      <a href="#partners">Partners</a>
       <a href="#faq">FAQ</a>
-      <a href="#contact">Contact</a>
+      <a href="#account">Account</a>
+      <a href="#support">Support</a>
     </nav>
   </div>
   <div class="wrap">
@@ -306,6 +568,56 @@
   </div>
 </footer>
 
+<!-- ===== CART ===== -->
+<div class="cart" id="cart" hidden>
+  <div class="cart__scrim" id="cartScrim"></div>
+
+  <aside class="cart__drawer" id="cartDrawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+    <header class="cart__head">
+      <h2 class="cart__title" id="cartTitle" data-i18n="cart.title">Your cart</h2>
+      <button class="cart__close" type="button" id="cartClose" aria-label="Close cart">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+        </svg>
+      </button>
+    </header>
+
+    <div class="cart__body" id="cartBody">
+      <!-- Empty state -->
+      <div class="cart__empty" id="cartEmpty">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true">
+          <path d="M2 3h3l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 2-1.55L21 7H6" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="10" cy="20" r="1.4" /><circle cx="18" cy="20" r="1.4" />
+        </svg>
+        <p class="cart__emptytitle" data-i18n="cart.emptyTitle">Nothing in here yet</p>
+        <p class="cart__emptybody" data-i18n="cart.emptyBody">
+          The shop hasn't opened, so there's nothing to add. Make an account and you'll know
+          the moment it does.
+        </p>
+        <a class="btn btn--ghost" href="#account" data-cart-close data-i18n="cart.emptyCta">Create an Account</a>
+      </div>
+
+      <!-- Items are rendered here by cart.js -->
+      <ul class="cart__items" id="cartItems" hidden></ul>
+    </div>
+
+    <footer class="cart__foot" id="cartFoot" hidden>
+      <div class="cart__row">
+        <span data-i18n="cart.subtotal">Subtotal</span>
+        <b id="cartSubtotal">$0.00</b>
+      </div>
+      <p class="cart__note" data-i18n="cart.note">Taxes and anything else are settled at checkout.</p>
+      <button class="btn btn--primary btn--lg cart__checkout" type="button" id="cartCheckout" data-i18n="cart.checkout">
+        Checkout
+      </button>
+      <p class="cart__status" id="cartStatus" role="status"></p>
+    </footer>
+  </aside>
+</div>
+
 <script src="assets/js/main.js"></script>
+<script src="assets/js/auth.js"></script>
+<script src="assets/js/cart.js"></script>
+<script src="assets/js/i18n.js"></script>
 </body>
 </html>
