@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>T's Services — GTA Mod Menus</title>
-<meta name="description" content="GTA mod menus for PC. Yari in stock now, more being arranged direct with their developers. Setup help and real support included." />
+<meta name="description" content="GTA mod menus for PC. Yari coming soon, more being arranged direct with their developers. Setup help and real support included." />
 <meta name="theme-color" content="#2fe3f5" />
 <link rel="canonical" href="https://tservices.cc/" />
 
@@ -13,10 +13,10 @@
 <meta property="og:site_name" content="T's Services" />
 <meta property="og:url" content="https://tservices.cc/" />
 <meta property="og:title" content="T's Services — GTA mod menus" />
-<meta property="og:description" content="Menus for GTA on PC. Yari in stock now, more on the way. Setup help and real support included." />
+<meta property="og:description" content="Menus for GTA on PC. Yari coming soon, more on the way. Setup help and real support included." />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="T's Services — GTA mod menus" />
-<meta name="twitter:description" content="Menus for GTA on PC. Yari in stock now, more on the way. Setup help and real support included." />
+<meta name="twitter:description" content="Menus for GTA on PC. Yari coming soon, more on the way. Setup help and real support included." />
 
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -119,8 +119,8 @@
         <span class="fact__val">PC only — Rockstar, Steam and Epic builds</span>
       </li>
       <li class="fact">
-        <span class="fact__key">Stock</span>
-        <span class="fact__val">Yari available now, more on the way</span>
+        <span class="fact__key">Launch</span>
+        <span class="fact__val">Not open yet — the list gets first access</span>
       </li>
       <li class="fact">
         <span class="fact__key">Setup</span>
@@ -136,9 +136,9 @@
   <div class="ticker" aria-hidden="true">
     <div class="ticker__track">
       <span>MOD MENUS</span><span>&#9670;</span><span>GTA ONLINE</span><span>&#9670;</span><span>PC ONLY</span><span>&#9670;</span>
-      <span>SETUP INCLUDED</span><span>&#9670;</span><span>YARI IN STOCK</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
+      <span>SETUP INCLUDED</span><span>&#9670;</span><span>COMING SOON</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
       <span>MOD MENUS</span><span>&#9670;</span><span>GTA ONLINE</span><span>&#9670;</span><span>PC ONLY</span><span>&#9670;</span>
-      <span>SETUP INCLUDED</span><span>&#9670;</span><span>YARI IN STOCK</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
+      <span>SETUP INCLUDED</span><span>&#9670;</span><span>COMING SOON</span><span>&#9670;</span><span>DIRECT SUPPORT</span><span>&#9670;</span>
     </div>
   </div>
 </section>
@@ -181,25 +181,25 @@
       <div class="catalog__panels">
 
         <div class="catpanel" role="tabpanel" id="panel-gta" aria-labelledby="cat-gta" tabindex="0">
-          <span class="badge badge--live">Yari in stock</span>
+          <span class="badge badge--soon">Yari coming soon</span>
           <h3 class="catpanel__title">Sourcing direct from the developers</h3>
           <p class="catpanel__body">
             GTA is the only thing we're doing for now, and doing it properly matters more than
             doing more. We arrange menus with the people who build them rather than buying keys
-            off a reseller chain. <b>Yari is available now</b> — anything else will say so here,
-            the moment it actually is, rather than before.
+            off a reseller chain. <b>Yari isn't open yet</b> — the pricing below is what it'll
+            cost once it is, and this page will say "In stock" the moment that's true.
           </p>
 
           <p class="catpanel__label">The lineup</p>
 
-          <!-- EDIT ME: when Yari is priced and ready, drop the price into
-               .product__price and swap the "Notify me" link for a real
-               data-add-to-cart button (see the cart contract in the README). -->
+          <!-- EDIT ME: Yari is priced but marked out of stock for now. To reopen
+               it, on the card: badge--off -> badge--live, remove is-off from the
+               <li>, and on each variant button restore
+               `data-add-to-cart data-id="yari-…" data-name="…" data-price="…"`
+               (see git history or the README's Cart section for the exact
+               values) and drop the disabled attribute. -->
           <ul class="products">
-            <!-- LIVE. Each duration is its own cart line: the data-id is the cart
-                 key, so it must stay unique and stable, and data-price must match
-                 the price shown beside it. -->
-            <li class="product product--live product--wide">
+            <li class="product is-off product--wide">
               <!-- Cover art: an original skyline silhouette, not a game screenshot —
                    every shape below is a drawn rectangle/path, nothing captured or
                    traced from Rockstar's game. The mark is a spear silhouette in
@@ -284,7 +284,7 @@
                   </span>
                   <p class="product__name">Yari</p>
                 </div>
-                <span class="badge badge--live">In stock</span>
+                <span class="badge badge--off">Out of stock</span>
               </div>
               <p class="product__meta">GTA Online · PC · Licence key</p>
 
@@ -295,9 +295,7 @@
                     <p class="variant__meta">Seven days</p>
                   </div>
                   <p class="variant__price">$7.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button"
-                          data-add-to-cart data-id="yari-week"
-                          data-name="Yari — 1 week" data-price="7.00">Add to cart</button>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
                 </li>
 
                 <li class="variant">
@@ -306,9 +304,7 @@
                     <p class="variant__meta">Thirty days</p>
                   </div>
                   <p class="variant__price">$25.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button"
-                          data-add-to-cart data-id="yari-month"
-                          data-name="Yari — 1 month" data-price="25.00">Add to cart</button>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
                 </li>
 
                 <li class="variant">
@@ -317,9 +313,7 @@
                     <p class="variant__meta">Sixty days</p>
                   </div>
                   <p class="variant__price">$45.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button"
-                          data-add-to-cart data-id="yari-2month"
-                          data-name="Yari — 2 months" data-price="45.00">Add to cart</button>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
                 </li>
 
                 <li class="variant">
@@ -328,9 +322,7 @@
                     <p class="variant__meta">Ninety days</p>
                   </div>
                   <p class="variant__price">$60.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button"
-                          data-add-to-cart data-id="yari-3month"
-                          data-name="Yari — 3 months" data-price="60.00">Add to cart</button>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
                 </li>
 
                 <li class="variant variant--best">
@@ -339,9 +331,7 @@
                     <p class="variant__meta">One payment, no renewals</p>
                   </div>
                   <p class="variant__price">$110.00</p>
-                  <button class="btn btn--primary btn--sm variant__cta" type="button"
-                          data-add-to-cart data-id="yari-lifetime"
-                          data-name="Yari — Lifetime" data-price="110.00">Add to cart</button>
+                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
                 </li>
               </ul>
             </li>
@@ -456,7 +446,7 @@
 
       <details class="faq__item reveal">
         <summary>When do you open?</summary>
-        <div class="faq__body"><p>Yari is available now. Anything else is still being arranged directly with its developers, and we would rather say "not yet" than put up a product we cannot actually supply. Make an account and you will hear the moment one comes online.</p></div>
+        <div class="faq__body"><p>No date yet, and we'd rather say that than invent one. Yari is furthest along, but it isn't open yet — we're still finishing the arrangement with its developers. Make an account and you'll hear from us before anyone else the moment that changes.</p></div>
       </details>
 
       <details class="faq__item reveal">
