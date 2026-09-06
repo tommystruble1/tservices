@@ -1,0 +1,12 @@
+# GitHub Pages runs Jekyll by default even for a plain static site (there's
+# no .nojekyll file here), and Jekyll publishes any file it doesn't know to
+# exclude. Without this, /server — which is only ever meant to be deployed
+# to Vercel, never to Pages — gets served at tservices.cc/server/* right
+# alongside the actual site.
+#
+# Nothing in /server is a secret (every credential is process.env.*, and the
+# one file with example values is a dotfile Jekyll already excludes by
+# default), but there's no reason to publish backend implementation details
+# on the storefront's own domain.
+exclude:
+  - server

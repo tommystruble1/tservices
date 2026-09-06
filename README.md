@@ -13,7 +13,15 @@ assets/js/auth.js      accounts, via Better Auth — needs /server deployed, see
 assets/js/cart.js      shopping cart + checkout
 assets/js/i18n.js      language switcher
 server/                Better Auth + Stripe API — a separate deployment, see below
+_config.yml            tells GitHub Pages' Jekyll build not to publish /server
 ```
+
+**`/server` is excluded from what GitHub Pages actually serves**, via `_config.yml`. Without
+it, Pages' default Jekyll build publishes every file it doesn't know to skip — `/server` would
+otherwise be readable at `tservices.cc/server/*` right alongside the real site. Nothing there is
+a secret (every credential is `process.env.*`), but backend implementation details have no reason
+to sit on the storefront's own domain. If you ever need Pages to publish something else it would
+otherwise skip (a dotfile, an `_`-prefixed folder), that's the same file to edit.
 
 Page order: Home (hero) → Products → Partners → How it runs → FAQ → Account → Support.
 The nav bar carries Home / Products / Partners / FAQ / Support, a language picker, the cart,
