@@ -17,11 +17,12 @@
    you 0.1 + 0.2 = 0.30000000000000004 on a receipt, which is exactly the sort
    of thing customers screenshot.
 
-   NOTE: checkout is not implemented, because a static site cannot take a
-   payment safely. Prices in the page are visible to the customer and editable
-   by them; nothing here is authoritative. A real checkout has to be a payment
-   provider (Stripe Checkout, Lemon Squeezy, Paddle) that prices the order on
-   their servers from IDs, not from numbers this page hands over.
+   Checkout hands the cart's ids and quantities — never prices — to the
+   backend under /server, which looks up what things actually cost from its
+   own price list and creates the Stripe Checkout Session. Nothing this page
+   sends is treated as authoritative; see server/lib/prices.js. Until
+   window.TS.BACKEND_URL (backend.js) points at a deployed backend, the button
+   explains that and points to Discord instead.
    --------------------------------------------------------------------------- */
 (function () {
   'use strict';
@@ -270,11 +271,46 @@
     add(id, name, Math.round(price * 100));
   });
 
-  /* ---- checkout ---- */
+  /* ---- checkout ----
+     Sends only { id, qty } per line. The backend decides what that id costs;
+     it does not read els price data at all. */
+  function setStatus(text, kind) {
+    els.status.textContent = text;
+    els.status.className = 'cart__status' + (kind ? ' is-' + kind : '');
+  }
+
   els.checkout.addEventListener('click', function () {
-    els.status.textContent = els.checkout.dataset.pending
-      || 'Checkout isn’t connected yet — the shop hasn’t opened. Message tom1x1 on Discord and we’ll sort it directly.';
-    els.status.className = 'cart__status is-warn';
+    if (!window.TS || !window.TS.BACKEND_URL) {
+      setStatus('Checkout isn’t connected yet — the shop hasn’t opened. Message tom1x1 on Discord and we’ll sort it directly.', 'warn');
+      return;
+    }
+    if (!window.TS.getToken()) {
+      setStatus('Sign in first, then come back to check out.', 'warn');
+      return;
+    }
+    if (!items.length) return;
+
+    els.checkout.disabled = true;
+    setStatus('Starting checkout…', '');
+
+    window.TS.authFetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        items: items.map(function (i) { return { id: i.id, qty: i.qty }; })
+      })
+    })
+      .then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); })
+      .then(function (result) {
+        if (!result.ok || !result.data.url) {
+          throw new Error((result.data && result.data.error) || 'Could not start checkout.');
+        }
+        window.location.href = result.data.url; // on to Stripe
+      })
+      .catch(function (err) {
+        setStatus(err.message || 'Could not reach the server. Try again shortly.', 'warn');
+        els.checkout.disabled = false;
+      });
   });
 
   items = restore();

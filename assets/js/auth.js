@@ -1,27 +1,19 @@
-/* T's Services — account sign-in
+/* T's Services — account sign-in, via Better Auth
    ---------------------------------------------------------------------------
-   GitHub Pages serves static files only, so there is no server here to check a
-   password against. Passwords are handled by Supabase Auth instead: it hashes
-   them, issues the session tokens and enforces the rules. This file only ever
-   passes credentials straight to Supabase over HTTPS and keeps the resulting
-   session — it never stores, compares or inspects a password itself.
+   GitHub Pages serves static files only, so there is no server here to check
+   a password against or to know who owns a licence key. Both live in the
+   separate backend under /server — see server/README.md for what it takes to
+   deploy it and window.TS.BACKEND_URL in assets/js/backend.js for where to
+   point this file at it once it's live.
 
-   The anon key below is PUBLIC by design. It identifies the project, it is not
-   a secret, and it is safe in page source. What protects your data is Supabase
-   Row Level Security, configured on their dashboard — not the key.
-
-   No SDK: the Auth REST API is called directly with fetch, so the site stays
-   dependency-free and loads no third-party script.
+   Auth is bearer-token based, not cookie based — see the comment in
+   backend.js for why. window.TS (from backend.js) holds the token and the
+   fetch helper that attaches it; this file only handles the UI and the
+   Better Auth REST calls themselves.
    --------------------------------------------------------------------------- */
 (function () {
   'use strict';
 
-  /* ===== CONFIG — from Supabase → Project Settings → API ===== */
-  var SUPABASE_URL = '';        // e.g. https://abcdefgh.supabase.co
-  var SUPABASE_ANON_KEY = '';   // the "anon / public" key
-  /* =========================================================== */
-
-  var SESSION_KEY = 'ts_session';
   var MIN_PASSWORD = 8;
   var TIMEOUT_MS = 12000;
 
@@ -42,30 +34,18 @@
     message:   document.getElementById('authMessage'),
     pwHint:    document.getElementById('authPwHint'),
 
-    who:     document.getElementById('authWho'),
-    initial: document.getElementById('authInitial'),
-    signOut: document.getElementById('authSignOut')
+    who:      document.getElementById('authWho'),
+    initial:  document.getElementById('authInitial'),
+    signOut:  document.getElementById('authSignOut'),
+
+    orders:      document.getElementById('ordersList'),
+    ordersEmpty: document.getElementById('ordersEmpty'),
+    ordersError: document.getElementById('ordersError')
   };
 
-  if (!els.signedOut) return;   // section not on this page
+  if (!els.signedOut || !window.TS) return; // section not on this page, or backend.js missing
 
-  var mode = 'signin';          // 'signin' | 'signup'
-
-  /* ---- storage that never throws ----
-     Private mode and blocked site data make localStorage throw on access,
-     not merely return null. */
-  function save(value) {
-    try {
-      if (value === null) localStorage.removeItem(SESSION_KEY);
-      else localStorage.setItem(SESSION_KEY, JSON.stringify(value));
-    } catch (err) { /* session just won't survive a reload */ }
-  }
-  function load() {
-    try {
-      var raw = localStorage.getItem(SESSION_KEY);
-      return raw ? JSON.parse(raw) : null;
-    } catch (err) { return null; }
-  }
+  var mode = 'signin'; // 'signin' | 'signup'
 
   function show(name) {
     ['unconfigured', 'signedOut', 'loading', 'signedIn'].forEach(function (k) {
@@ -82,46 +62,41 @@
     els.submit.disabled = on;
     els.email.disabled = on;
     els.password.disabled = on;
-    els.submit.textContent = on
-      ? 'Working…'
-      : (mode === 'signin' ? 'Sign in' : 'Create account');
+    els.submit.textContent = on ? 'Working…' : (mode === 'signin' ? 'Sign in' : 'Create account');
   }
 
-  /* ---- Supabase Auth REST ---- */
-  function api(path, body, token) {
-    var headers = {
-      'Content-Type': 'application/json',
-      apikey: SUPABASE_ANON_KEY
-    };
-    if (token) headers.Authorization = 'Bearer ' + token;
-
-    // Give up ourselves rather than waiting on the browser's own timeout, which
-    // on a bad DNS lookup can leave the form disabled for 20s with no
-    // explanation. Anything slower than this is broken from the user's side.
+  /* ---- Better Auth REST calls ----
+     These are Better Auth's own documented endpoints, called directly with
+     fetch rather than through their client SDK, so the site stays
+     dependency-free and loads no bundler-built script. */
+  function timeoutFetch(path, options) {
     var controller = window.AbortController ? new AbortController() : null;
     var timer = setTimeout(function () { if (controller) controller.abort(); }, TIMEOUT_MS);
+    options = options || {};
+    if (controller) options.signal = controller.signal;
 
-    return fetch(SUPABASE_URL.replace(/\/+$/, '') + '/auth/v1' + path, {
+    return window.TS.authFetch(path, options)
+      .catch(function () {
+        throw new Error('Could not reach the server. Check your connection and try again.');
+      })
+      .then(
+        function (res) { clearTimeout(timer); return res; },
+        function (err) { clearTimeout(timer); throw err; }
+      );
+  }
+
+  function betterAuthCall(path, body) {
+    return timeoutFetch('/api/auth' + path, {
       method: 'POST',
-      headers: headers,
-      body: body ? JSON.stringify(body) : undefined,
-      signal: controller ? controller.signal : undefined
-    }).catch(function () {
-      // Offline, DNS failure, blocked request, our own abort — never surface
-      // "Failed to fetch" or "AbortError" to someone trying to sign in.
-      throw new Error('Could not reach the server. Check your connection and try again.');
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body || {})
     }).then(function (res) {
-      clearTimeout(timer);
-      return res;
-    }, function (err) {
-      clearTimeout(timer);
-      throw err;
-    }).then(function (res) {
+      var token = res.headers.get('set-auth-token');
+      if (token) window.TS.setToken(token);
+
       return res.json().catch(function () { return {}; }).then(function (data) {
         if (!res.ok) {
-          // Supabase puts the readable reason in one of these.
-          var msg = data.error_description || data.msg || data.message
-            || data.error || 'Something went wrong. Try again.';
+          var msg = (data && (data.message || data.error)) || 'Something went wrong. Try again.';
           throw new Error(msg);
         }
         return data;
@@ -129,33 +104,64 @@
     });
   }
 
-  function storeSession(data) {
-    if (!data.access_token) return null;
-    var session = {
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      expires: Date.now() + ((data.expires_in || 3600) * 1000),
-      email: (data.user && data.user.email) || els.email.value.trim()
-    };
-    save(session);
-    return session;
+  function getSession() {
+    return timeoutFetch('/api/auth/get-session', { method: 'GET' })
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .catch(function () { return null; });
   }
 
-  function renderSignedIn(session) {
-    // Email is user-supplied data: textContent only, never innerHTML.
-    els.who.textContent = session.email || 'Signed in';
-    els.initial.textContent = (session.email || '?').slice(0, 1).toUpperCase();
+  /* ---- licence keys ---- */
+  function loadOrders() {
+    els.orders.textContent = '';
+    els.ordersEmpty.hidden = true;
+    els.ordersError.hidden = true;
+
+    window.TS.authFetch('/api/orders', { method: 'GET' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('Could not load your orders.');
+        return res.json();
+      })
+      .then(function (data) {
+        var orders = (data && data.orders) || [];
+        if (!orders.length) {
+          els.ordersEmpty.hidden = false;
+          return;
+        }
+        orders.forEach(function (o) {
+          var li = document.createElement('li');
+          li.className = 'orderitem';
+
+          var info = document.createElement('div');
+          var name = document.createElement('p');
+          name.className = 'orderitem__name';
+          name.textContent = o.product + ' — ' + o.variant; // server-supplied, but textContent regardless
+          var date = document.createElement('p');
+          date.className = 'orderitem__date';
+          date.textContent = new Date(o.created_at).toLocaleDateString();
+          info.appendChild(name);
+          info.appendChild(date);
+
+          var key = document.createElement('code');
+          key.className = 'orderitem__key';
+          key.textContent = o.license_key;
+
+          li.appendChild(info);
+          li.appendChild(key);
+          els.orders.appendChild(li);
+        });
+      })
+      .catch(function () {
+        els.ordersError.hidden = false;
+      });
+  }
+
+  /* ---- render signed-in state ---- */
+  function renderUser(user) {
+    var label = user.email || 'Signed in';
+    els.who.textContent = label;
+    els.initial.textContent = label.slice(0, 1).toUpperCase();
     show('signedIn');
-  }
-
-  function refresh(session) {
-    return api('/token?grant_type=refresh_token', {
-      refresh_token: session.refresh_token
-    }).then(function (data) {
-      var next = storeSession(data);
-      if (!next) throw new Error('Could not renew session.');
-      return next;
-    });
+    loadOrders();
   }
 
   /* ---- form ---- */
@@ -168,9 +174,7 @@
       ? 'Use the email and password you signed up with.'
       : 'Pick a password you do not use anywhere else.';
     els.submit.textContent = signin ? 'Sign in' : 'Create account';
-    els.toggle.textContent = signin
-      ? 'No account yet? Create one'
-      : 'Already have an account? Sign in';
+    els.toggle.textContent = signin ? 'No account yet? Create one' : 'Already have an account? Sign in';
     els.password.setAttribute('autocomplete', signin ? 'current-password' : 'new-password');
     els.pwHint.hidden = signin;
     els.forgot.hidden = !signin;
@@ -194,7 +198,6 @@
       els.email.focus();
       return;
     }
-    // UX check only — Supabase enforces the real policy server-side.
     if (mode === 'signup' && password.length < MIN_PASSWORD) {
       say('Use at least ' + MIN_PASSWORD + ' characters.', 'err');
       els.password.focus();
@@ -209,26 +212,23 @@
     busy(true);
     say('', '');
 
-    var request = mode === 'signin'
-      ? api('/token?grant_type=password', { email: email, password: password })
-      : api('/signup', { email: email, password: password });
+    var path = mode === 'signin' ? '/sign-in/email' : '/sign-up/email';
+    var payload = mode === 'signin'
+      ? { email: email, password: password }
+      : { email: email, password: password, name: email.split('@')[0] };
 
-    request.then(function (data) {
-      els.password.value = '';       // don't leave it sitting in the DOM
-      var session = storeSession(data);
-
-      if (session) {
-        renderSignedIn(session);
-      } else {
-        // Signup with email confirmation on: no session until they confirm.
-        setMode('signin');
-        say('Account created. Check your email to confirm it, then sign in.', 'ok');
-      }
-    }).catch(function (err) {
-      say(err.message, 'err');
-    }).then(function () {
-      busy(false);
-    });
+    betterAuthCall(path, payload)
+      .then(function (data) {
+        els.password.value = ''; // don't leave it sitting in the DOM
+        if (data && data.user) {
+          renderUser(data.user);
+        } else {
+          setMode('signin');
+          say('Account created. Sign in to continue.', 'ok');
+        }
+      })
+      .catch(function (err) { say(err.message, 'err'); })
+      .then(function () { busy(false); });
   });
 
   els.forgot.addEventListener('click', function (e) {
@@ -240,10 +240,10 @@
       return;
     }
     busy(true);
-    api('/recover', { email: email })
+    betterAuthCall('/forget-password', { email: email, redirectTo: window.location.origin + window.location.pathname })
       .then(function () {
-        // Deliberately the same message whether or not the account exists,
-        // so this can't be used to find out who has an account.
+        // Same message whether or not the account exists, so this can't be
+        // used to find out who has one.
         say('If that address has an account, a reset link is on its way.', 'ok');
       })
       .catch(function (err) { say(err.message, 'err'); })
@@ -251,43 +251,35 @@
   });
 
   els.signOut.addEventListener('click', function () {
-    var session = load();
-    save(null);
+    var hadToken = !!window.TS.getToken();
+    window.TS.setToken(null);
     show('signedOut');
     setMode('signin');
     els.email.value = '';
     els.password.value = '';
-    // Best effort — the local session is already gone either way.
-    if (session && session.access_token) {
-      api('/logout', null, session.access_token).catch(function () {});
-    }
+    if (hadToken) betterAuthCall('/sign-out', {}).catch(function () {}); // best effort
   });
 
   /* ---- boot ---- */
   setMode('signin');
 
-  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+  if (!window.TS.BACKEND_URL) {
     show('unconfigured');
     return;
   }
 
-  var existing = load();
-
-  if (!existing) {
+  var existingToken = window.TS.getToken();
+  if (!existingToken) {
     show('signedOut');
-  } else if (Date.now() < existing.expires) {
-    renderSignedIn(existing);
-  } else if (existing.refresh_token) {
-    show('loading');
-    refresh(existing)
-      .then(renderSignedIn)
-      .catch(function () {
-        save(null);
-        show('signedOut');
-        say('That session expired. Sign in again.', 'err');
-      });
   } else {
-    save(null);
-    show('signedOut');
+    show('loading');
+    getSession().then(function (data) {
+      if (data && data.user) {
+        renderUser(data.user);
+      } else {
+        window.TS.setToken(null);
+        show('signedOut');
+      }
+    });
   }
 })();

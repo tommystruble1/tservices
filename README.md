@@ -1,6 +1,6 @@
 # T's Services
 
-Single-page site for a Discord-based GTA shop — mod menu resale. **Tsumi is in stock; Overdose, Cherax and Atlas are offline** while those arrangements are finished. Accounts, cart and 19 languages are wired up; checkout and sign-in each need one external service connected (see below).
+Single-page site for a Discord-based GTA shop — mod menu resale. **Yari is in stock and priced.** Cart and 19 languages work with no setup; accounts, licence-key delivery and checkout are wired up in the page but need the `/server` backend deployed first (see below).
 
 Static HTML/CSS/JS, no build step, no third-party scripts. Hosts free on GitHub Pages.
 
@@ -8,9 +8,11 @@ Static HTML/CSS/JS, no build step, no third-party scripts. Hosts free on GitHub 
 index.html
 assets/css/style.css
 assets/js/main.js      site interactions + category rail
-assets/js/auth.js      accounts — needs config, see Accounts below
-assets/js/cart.js      shopping cart
+assets/js/backend.js   BACKEND_URL + the bearer-token fetch helper — set this first
+assets/js/auth.js      accounts, via Better Auth — needs /server deployed, see below
+assets/js/cart.js      shopping cart + checkout
 assets/js/i18n.js      language switcher
+server/                Better Auth + Stripe API — a separate deployment, see below
 ```
 
 Page order: Home (hero) → Products → Partners → How it runs → FAQ → Account → Support.
@@ -25,9 +27,9 @@ persists across reloads and totals correctly. Any element becomes an add-to-cart
 
 ```html
 <button data-add-to-cart
-        data-id="overdose"      unique and stable — it is the cart key
-        data-name="Overdose"    shown in the cart
-        data-price="24.99">     decimal, no currency symbol
+        data-id="yari-week"       unique and stable — it is the cart key
+        data-name="Yari — 1 week" shown in the cart
+        data-price="7.00">        decimal, no currency symbol
   Add to cart
 </button>
 ```
@@ -39,11 +41,10 @@ Money is held in **integer cents** throughout. Float arithmetic gives you
 `0.1 + 0.2 = 0.30000000000000004`, which is exactly the sort of thing customers screenshot.
 Totals format through `Intl.NumberFormat` in the active language.
 
-> **Checkout is not implemented, and can't be here.** Prices live in the page, where the customer
-> can edit them before they're read. Nothing this page sends is authoritative. A real checkout
-> has to be a provider that prices the order server-side from product IDs — Stripe Checkout,
-> Lemon Squeezy or Paddle all do this and all work from a static site. The button currently
-> explains that and points people at Discord.
+> **Checkout only sends ids and quantities, never prices**, to the `/server` backend covered later
+> in this README — that backend, not this page, decides what something actually costs. Until that
+> backend is deployed and `assets/js/backend.js` points at it, the button explains that and points
+> people at Discord instead.
 
 Cart contents are re-validated on load, because `localStorage` is user-editable — a tampered
 entry is dropped rather than trusted.
@@ -67,45 +68,103 @@ fall back to English rather than rendering blank.
 
 The logo is inline SVG in the nav, with a matching copy in the favicon `data:` URI in `<head>` — change both if you redraw it. There is no image asset to manage.
 
-## Accounts
+## Accounts, licence keys and checkout — the /server backend
 
-**`assets/js/auth.js` is not configured, so the account section says "Not open yet".** That's the
-honest state — nothing pretends to work. To switch it on you need two values.
+**Nothing in this section works until `/server` is deployed and `assets/js/backend.js` points at
+it.** Until then the account section correctly says "Not open yet" and checkout says "Message
+tom1x1 on Discord" — that's the honest state, not a bug.
 
-### Why an outside service
+### Why this needs a real server, unlike the rest of the site
 
-GitHub Pages serves files. It runs no code, so there is nothing here that can check a password.
-Anything the page checked itself would be sitting in view-source. Supabase Auth does the actual
-authentication: it hashes passwords, issues session tokens, handles email confirmation and
-password resets. This site only passes credentials to it over HTTPS and keeps the session.
+Everything else on tservices.cc is static files with no code running anywhere but the visitor's
+browser. Two things in this project genuinely cannot work that way, no matter how they're wired:
 
-### Switching it on
+- **Checking a password.** Whatever code checked it, and whatever it checked it against, would sit
+  in page source for anyone to read.
+- **Deciding what something costs, for money that's actually changing hands.** The page can
+  *display* a price, but it cannot be the thing a payment is trusted against — anyone can edit a
+  static page's numbers before a request goes out.
 
-1. Make a project at [supabase.com](https://supabase.com) — free tier is fine.
-2. **Project Settings → API**, copy the **Project URL** and the **anon / public** key.
-3. Paste both into the CONFIG block at the top of `assets/js/auth.js`.
-4. **Authentication → URL Configuration**, set Site URL to `https://tservices.cc` so confirmation
-   and password-reset links come back to the right place.
+`/server` is a small [Better Auth](https://better-auth.com) + [Stripe](https://stripe.com) API,
+meant to be deployed to [Vercel](https://vercel.com) as its own project, separate from this static
+site. It talks to tservices.cc over plain HTTPS `fetch` calls — no build step is added to the
+static site itself.
 
-That's it — the section switches from "Not open yet" to a working sign-in form on its own.
+**I could not run or test this backend.** Everything else in this repo was checked in a live
+browser before being called done; this sandbox has no Node.js runtime, so `/server` was written
+carefully against Better Auth's and Stripe's documented APIs but never actually executed. Test it
+for real after your first deploy — sign up, sign in, and run one Stripe test-mode purchase — before
+trusting it with real payments.
 
-> **The anon key is meant to be public.** It goes in page source by design; it identifies the
-> project, it is not a secret, and leaking it is not a breach. What protects data is Row Level
-> Security, which you configure on Supabase. Never put the **service_role** key in this repo —
-> that one *is* a secret and bypasses every policy.
+### What you have to do yourself
 
-### What it does and doesn't do
+I can't create the accounts this needs — Vercel, a database, and Stripe all want your name, email,
+and eventually (Stripe) your bank details for payouts. That part is yours:
 
-Sign-up, sign-in, sign-out, session persistence across reloads, token refresh, password reset, and
-a signed-in panel. What it does **not** do is gate anything. Everything on this page is public
-source, so a logged-in user and a stranger can both read all of it. Real per-customer data —
-licence keys, downloads, order history — has to come from a server that checks the token before
-it hands anything over. With Supabase that means a table with Row Level Security so each row is
-readable only by the user it belongs to; the placeholder panel in `#account` is where that goes.
+1. **A Postgres database.** [Neon](https://neon.tech) has a free tier and works well here. Copy
+   its connection string.
+2. **A Stripe account.** Developers → API keys for a secret key; Developers → Webhooks for a
+   webhook signing secret, once you have a backend URL to point it at (step 4 makes that URL).
+3. **A Vercel account**, then deploy `/server` as its **own** Vercel project (set the project's
+   root directory to `server/`, not the repo root — it must not be deployed alongside the static
+   site). Set the environment variables from `server/.env.example` in the Vercel project settings.
+4. Back in Stripe, add a webhook endpoint at `<your-backend>.vercel.app/api/webhook`, subscribed to
+   `checkout.session.completed`, and paste its signing secret into `STRIPE_WEBHOOK_SECRET`.
+5. Run Better Auth's migration against your database, then `server/schema.sql` for the licences
+   table — see the comment at the top of that file for the exact order (Better Auth's tables have
+   to exist first; `licenses` has a foreign key into them):
+   ```bash
+   npx @better-auth/cli migrate
+   psql "$DATABASE_URL" -f server/schema.sql
+   ```
+6. Paste your deployed backend's URL into `BACKEND_URL` at the top of `assets/js/backend.js`, push,
+   and the static site starts talking to it.
 
-No SDK is loaded. `auth.js` calls the Supabase Auth REST API with `fetch`, so the site stays
-dependency-free and pulls in no third-party script. Requests time out after 12 seconds
-(`TIMEOUT_MS`) rather than leaving the form disabled on a hanging connection.
+### Why bearer tokens, not cookies
+
+Better Auth defaults to a session cookie, but a cookie set by `<your-backend>.vercel.app` is a
+**third-party cookie** from tservices.cc's point of view — Safari has blocked those for years, and
+Chrome is heading the same way. `server/lib/auth.js` enables Better Auth's `bearer()` plugin
+instead: sign-in returns the session token in a `set-auth-token` response header, and
+`assets/js/backend.js` stores it and sends it back as `Authorization: Bearer …` on every request
+after, the same way any API key works. `server/lib/cors.js` has to explicitly
+`Access-Control-Expose-Headers: set-auth-token`, or the browser hides that header from JS entirely
+and sign-in silently "succeeds" with no way to read the token back out.
+
+### Why the server holds the only real prices
+
+`server/lib/prices.js` is the one place a price is decided — `api/checkout.js` looks up each
+cart line by its id and builds the Stripe Checkout Session from that, ignoring whatever the
+browser sent for cost. This isn't new caution added for the backend: it's the same rule the cart
+was built under from the start (see *Cart* above) — a browser was never a trustworthy source of
+what something costs, and now there's finally a place for that rule to actually be enforced rather
+than just asserted in a comment. **Keep `prices.js` in sync with the `.variant` blocks in
+`index.html` by hand** — there's no shared source between the static site and this server, so a
+mismatch means the page shows one number and Stripe charges another.
+
+### Where a licence key comes from
+
+Only one place: `server/api/webhook.js`, and only after Stripe confirms `checkout.session.completed`
+with a signature that verifies against `STRIPE_WEBHOOK_SECRET`. Nothing else in this codebase ever
+generates one — not checkout, not the page, not the dashboard. Stripe retries webhook delivery on
+anything but a fast 2xx response, so the handler checks for an existing row with that
+`stripe_session_id` before inserting, to avoid double-issuing keys on a retry.
+
+### The dashboard
+
+Once signed in, `#account`'s signed-in panel fetches `GET /api/orders`, which returns only the
+calling user's own rows — scoped by the verified session's `user.id`, never by anything the client
+claims about who it is. Each key renders in a `<code>` with `user-select: all`, so one click-drag
+selects the whole thing for copying.
+
+### What still needs a decision from you
+
+- **Delivery beyond the key itself.** The dashboard shows the licence key Stripe's webhook issued.
+  Actually installing the menu — a download link, setup instructions — isn't wired up; decide
+  whether that's a static file per product, a support handoff, or something else.
+- **Refunds and disputes.** Nothing here processes one. That's a Stripe dashboard action plus
+  presumably revoking the key, which would need a small addition to `orders.js` (a `revoked`
+  column checked before returning a row).
 
 ## Run it locally
 
@@ -242,9 +301,10 @@ it on selection.
 
 ### Products and their three states
 
-Inside the GTA panel, `.products` holds one `.product` card per menu: **Tsumi, Overdose, Cherax,
-Atlas**. Each card is in one of three states, and the badge, the styling and the button must all
-agree — a card that looks available but says "Notify me" is how you get a complaint.
+Inside the GTA panel, `.products` holds one `.product` card per menu. Right now that's just
+**Yari** — earlier drafts also carried Tsumi, Overdose, Cherax and Atlas, all since removed at
+the owner's request. Each card is in one of three states, and the badge, the styling and the
+button must all agree — a card that looks available but says "Notify me" is how you get a complaint.
 
 | State | Card class | Badge | Button |
 |---|---|---|---|
@@ -252,26 +312,46 @@ agree — a card that looks available but says "Notify me" is how you get a comp
 | Offline | `product is-off` | `badge--off` "Offline" | "Notify me" → `#account` |
 | Coming soon | `product` | `badge--soon` "Soon" | "Notify me" → `#account` |
 
-Right now only **Tsumi** is in stock; the other three are offline and dimmed to 55% opacity.
-
-Tsumi is sold in three durations, each its own `.variant` row and its own cart line:
+**Yari** is in stock and priced, sold in five durations, each its own `.variant` row and its own
+cart line:
 
 | Duration | Price | `data-id` |
 |---|---|---|
-| 1 week | $7.00 | `tsumi-week` |
-| 1 month | $17.99 | `tsumi-month` |
-| Lifetime *(flagged best value)* | $40.00 | `tsumi-lifetime` |
+| 1 week | $7.00 | `yari-week` |
+| 1 month | $25.00 | `yari-month` |
+| 2 months | $45.00 | `yari-2month` |
+| 3 months | $60.00 | `yari-3month` |
+| Lifetime *(flagged best value)* | $110.00 | `yari-lifetime` |
 
-The in-stock card takes the full row (`product--wide`) so the durations have room; the offline
-cards flow in the grid beneath it. **The displayed price and `data-price` are two separate
+The in-stock card takes the full row (`product--wide`) so the durations have room; any offline
+card would flow in the grid beneath it. **The displayed price and `data-price` are two separate
 strings** — change one and you must change the other, or the cart charges something different
 from what the page advertises.
 
-Tsumi carries a small mark beside its name: 罪 ("sin"), set as SVG `<text>` with an
-`feGaussianBlur`/`feMerge` filter for a neon-sign glow. It's typography and an SVG filter only —
-no image file, no font embed beyond the system CJK fallback stack, and nothing borrowed from
-Rockstar. Same pattern as the nav logo: inline, no asset to manage. Give other products the same
-treatment by copying `.product__brand` and swapping the glyph, filter id and glow colour.
+**If you change what's in stock, five other places say so** and will contradict you if you miss
+them: the panel badge and its paragraph, the hero `Stock` fact, the ticker (×2), the sub-header
+under "What We Sell", and the "When do you open?" FAQ answer.
+
+### Yari's cover and mark
+
+Yari carries two pieces of original artwork, both inline SVG, no image files:
+
+- **`.product__mark`** — 槍 ("spear") on a small black sign board with an orange glow, beside the
+  product name. Same pattern as Tsumi's mark before it: SVG `<text>` plus a glow filter, no font
+  embed beyond the system CJK fallback stack.
+- **`.product__cover`** — a full-width banner above the card: an original skyline (plain
+  `<rect>` shapes, not traced from anywhere), an orange gradient sky, faint signal lines, and a
+  spearhead silhouette. It bleeds to the card's edges via a negative margin equal to the card's
+  own padding (`.product { overflow: hidden }` clips it to the border-radius) — see
+  `.product__cover` in `style.css` if you reuse this on another product.
+
+**Both were built from a reference image the owner shared, not from the image itself.** That
+reference was a GTA V screenshot — Rockstar's character model and in-game skyline composited with
+a neon sign / white chevron mark. This repo's own footer says no Rockstar assets are used, so the
+photo itself was never an option; what got reused was the *idea* (a mark silhouetted against a
+glowing night skyline), redrawn as original vector shapes. If you swap this out for something
+closer to the reference later, keep that constraint in mind — a cropped or lightly-edited version
+of the original screenshot is still Rockstar's asset.
 
 **If you change what's in stock, four other places say so** and will contradict you if you miss
 them: the panel badge and its paragraph, the hero `Stock` fact, the ticker, and the
@@ -290,7 +370,7 @@ To open for business you'll be adding the lineup, not just flipping switches. Th
 | `#products` | GTA category, no prices | real menus and prices in the GTA panel |
 | Hero kicker | `<span class="dot dot--soon">` + `<b class="is-soon">COMING SOON</b>` | `<span class="dot">` + `<b>IN STOCK</b>` |
 | Hero second CTA | "Why the Wait" → `#products` | "See the Lineup" |
-| Account section | "Not open yet" | configured Supabase, live sign-in |
+| Account section | "Not open yet" | deployed /server, live sign-in |
 | Hero `Launch` fact | "Not open yet" | delivery terms |
 | `#setup` step 01 | "Once the lineup is up…" | drop the preamble |
 | `#faq` | "When do you open?" entry | remove it |

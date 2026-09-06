@@ -691,6 +691,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   transition: border-color .2s var(--ease), background .2s var(--ease);
 }
 .product:hover { border-color: var(--line-2); background: var(--panel-2); }
+.product { overflow: hidden; }
 
 /* The one that's actually buyable gets the accent; the rest recede. */
 .product--live {
@@ -698,6 +699,15 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   background: linear-gradient(180deg, rgba(52,211,153,.05), transparent 55%), var(--bg-alt);
 }
 .product--live:hover { border-color: rgba(52,211,153,.45); }
+
+/* Cover art bleeds to the card's edges — pull it out by exactly the card's own
+   padding, then let .product's overflow:hidden clip it to the border-radius. */
+.product__cover {
+  display: block;
+  width: calc(100% + 36px);
+  height: auto;
+  margin: -18px -18px 16px;
+}
 
 .product.is-off { opacity: .55; }
 .product.is-off:hover { opacity: .8; }
@@ -762,7 +772,17 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 
 .product__top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .product__brand { display: flex; align-items: center; gap: 10px; }
-.product__mark { flex: none; display: block; filter: drop-shadow(0 0 6px rgba(255,47,107,.45)); }
+.product__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: #0a0a0a;
+  border: 1.5px solid #2a2a2a;
+}
+.product__mark img { display: block; width: 30px; height: 30px; object-fit: contain; }
 .product__name {
   font-family: var(--display);
   font-size: 17px;
@@ -946,6 +966,36 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   background: var(--bg-alt);
   border: 1px solid var(--line);
   border-radius: var(--r);
+}
+.account__panel-title {
+  font-family: var(--display);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+/* ---------- licence keys ---------- */
+.orders { display: grid; gap: 1px; width: 100%; background: var(--line); border: 1px solid var(--line); border-radius: var(--r-sm); overflow: hidden; }
+.orderitem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  padding: 14px 16px;
+  background: var(--panel);
+}
+.orderitem__name { font-size: 14.5px; font-weight: 600; }
+.orderitem__date { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.orderitem__key {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--acc);
+  background: var(--bg);
+  border: 1px solid var(--line-2);
+  border-radius: var(--r-sm);
+  padding: 6px 10px;
+  user-select: all; /* one click-drag selects the whole key for copying */
 }
 
 /* ---------- notices ---------- */

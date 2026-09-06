@@ -1,0 +1,11 @@
+{
+  "name": "tservices-server",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Better Auth + Stripe backend for tservices.cc. Deployed separately from the static site — see server/README.md.",
+  "dependencies": {
+    "better-auth": "^1.2.0",
+    "pg": "^8.12.0",
+    "stripe": "^17.0.0"
+  }
+}
