@@ -98,13 +98,14 @@ meant to be deployed to [Vercel](https://vercel.com) as its own project, separat
 site. It talks to tservices.cc over plain HTTPS `fetch` calls — no build step is added to the
 static site itself.
 
-**Sign-in is email one-time code, not password.** `server/lib/auth.js` runs Better Auth's
-`emailOTP` plugin: the page posts an email to `/api/auth/email-otp/send-verification-otp`, the
-server generates a 6-digit code and hands it to `server/lib/email.js` to deliver, and
-`/api/auth/sign-in/email-otp` with `{ email, otp }` verifies it — creating the account on the
-first successful code for that address. `server/lib/email.js` sends through
-[Resend](https://resend.com) over its REST API (no SDK dependency); swap that one file to use a
-different provider.
+**Sign-in is a magic link, not a password.** `server/lib/auth.js` runs Better Auth's
+`magicLink` plugin: the page posts an email to `/api/auth/sign-in/magic-link`, the server
+stores a token and hands `server/lib/email.js` a link back to the site
+(`https://tservices.cc/#account?magic=<token>`). Opening that link runs `assets/js/auth.js`,
+which calls `GET /api/auth/magic-link/verify?token=<token>` and gets the session token back in
+the `set-auth-token` response header (bearer plugin). First successful link for an address
+creates the account. `server/lib/email.js` sends through [Resend](https://resend.com) over its
+REST API (no SDK dependency); swap that one file to use a different provider.
 
 **I could not run or test this backend.** Everything else in this repo was checked in a live
 browser before being called done; this sandbox has no Node.js runtime, so `/server` was written
