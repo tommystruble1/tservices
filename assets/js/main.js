@@ -59,31 +59,43 @@
     revealables.forEach(function (el) { io.observe(el); });
   }
 
-  /* ---- active section in nav ---- */
-  var sectionIds = ['products', 'partners', 'faq', 'support'];
-  var navMap = {};
-  sectionIds.forEach(function (id) {
-    navMap[id] = document.querySelector('.nav__links a[href="#' + id + '"]');
-  });
-
-  if ('IntersectionObserver' in window) {
-    var so = new IntersectionObserver(function (entries) {
-      entries.forEach(function (entry) {
-        var link = navMap[entry.target.id];
-        if (!link) return;
-        if (entry.isIntersecting) {
-          Object.keys(navMap).forEach(function (k) {
-            if (navMap[k]) navMap[k].classList.remove('is-active');
-          });
-          link.classList.add('is-active');
-        }
-      });
-    }, { rootMargin: '-45% 0px -50%' });
-    sectionIds.forEach(function (id) {
-      var el = document.getElementById(id);
-      if (el) so.observe(el);
+  /* ---- promo bar dismiss ---- */
+  var promo = document.getElementById('promo');
+  var promoClose = document.getElementById('promoClose');
+  try {
+    if (promo && localStorage.getItem('ts_promo') === 'off') promo.hidden = true;
+  } catch (err) {}
+  if (promoClose) {
+    promoClose.addEventListener('click', function () {
+      if (promo) promo.hidden = true;
+      try { localStorage.setItem('ts_promo', 'off'); } catch (err) {}
     });
   }
+
+  /* ---- nav product search ---- */
+  var searchBtn = document.getElementById('searchBtn');
+  var searchInput = document.getElementById('searchInput');
+  if (searchBtn && searchInput) {
+    searchBtn.addEventListener('click', function () {
+      var on = nav.classList.toggle('is-searching');
+      searchBtn.setAttribute('aria-expanded', String(on));
+      if (on) searchInput.focus();
+      else { searchInput.value = ''; filterProducts(''); }
+    });
+    searchInput.addEventListener('input', function () { filterProducts(searchInput.value); });
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { searchBtn.click(); searchBtn.focus(); }
+    });
+  }
+  function filterProducts(q) {
+    q = q.trim().toLowerCase();
+    document.querySelectorAll('#products .product').forEach(function (card) {
+      var name = (card.querySelector('.product__name') || {}).textContent || '';
+      card.hidden = q !== '' && name.toLowerCase().indexOf(q) === -1;
+    });
+  }
+
+  /* Active-nav highlighting is handled by router.js (one view at a time). */
 
   /* ---- product category rail ----
      A vertical tablist: clicking a category swaps the panel beside it. Arrow
@@ -126,6 +138,18 @@
         e.preventDefault();
         selectTab(next, true);
       }
+    });
+  }
+
+  /* ---- reviews sort toggle (visual only until reviews exist) ---- */
+  var sortGroup = document.querySelector('.reviews__sort');
+  if (sortGroup) {
+    sortGroup.addEventListener('click', function (e) {
+      var btn = e.target.closest('button');
+      if (!btn) return;
+      sortGroup.querySelectorAll('button').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
     });
   }
 

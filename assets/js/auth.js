@@ -1,21 +1,26 @@
-/* T's Services — account sign-in, via Better Auth
+/* T's Services — account sign-in, via Better Auth email OTP
    ---------------------------------------------------------------------------
-   GitHub Pages serves static files only, so there is no server here to check
-   a password against or to know who owns a licence key. Both live in the
-   separate backend under /server — see server/README.md for what it takes to
-   deploy it and window.TS.BACKEND_URL in assets/js/backend.js for where to
-   point this file at it once it's live.
+   No password. The visitor enters an email, we send a 6-digit code, and
+   entering that code signs them in — creating the account the first time.
 
-   Auth is bearer-token based, not cookie based — see the comment in
-   backend.js for why. window.TS (from backend.js) holds the token and the
-   fetch helper that attaches it; this file only handles the UI and the
-   Better Auth REST calls themselves.
+   GitHub Pages serves static files only, so there is no server here. The code
+   is generated, stored and checked by the separate backend under /server
+   (Better Auth's emailOTP plugin), and the email is sent by whatever provider
+   that backend is configured with. This file is only the UI plus the three
+   Better Auth REST calls it makes:
+
+     POST /api/auth/email-otp/send-verification-otp   { email, type: "sign-in" }
+     POST /api/auth/sign-in/email-otp                 { email, otp }
+     GET  /api/auth/get-session
+
+   Auth is bearer-token based (see backend.js): sign-in returns the token in a
+   `set-auth-token` response header, stored and sent as `Authorization: Bearer`.
    --------------------------------------------------------------------------- */
 (function () {
   'use strict';
 
-  var MIN_PASSWORD = 8;
   var TIMEOUT_MS = 12000;
+  var RESEND_COOLDOWN_MS = 30000;
 
   var els = {
     unconfigured: document.getElementById('authUnconfigured'),
@@ -25,14 +30,14 @@
 
     form:      document.getElementById('authForm'),
     email:     document.getElementById('authEmail'),
-    password:  document.getElementById('authPassword'),
+    codeField: document.getElementById('authCodeField'),
+    code:      document.getElementById('authCode'),
     submit:    document.getElementById('authSubmit'),
     formTitle: document.getElementById('authFormTitle'),
     formHint:  document.getElementById('authFormHint'),
-    toggle:    document.getElementById('authToggle'),
-    forgot:    document.getElementById('authForgot'),
     message:   document.getElementById('authMessage'),
-    pwHint:    document.getElementById('authPwHint'),
+    resend:    document.getElementById('authResend'),
+    restart:   document.getElementById('authRestart'),
 
     who:      document.getElementById('authWho'),
     initial:  document.getElementById('authInitial'),
@@ -45,7 +50,10 @@
 
   if (!els.signedOut || !window.TS) return; // section not on this page, or backend.js missing
 
-  var mode = 'signin'; // 'signin' | 'signup'
+  var step = 'email';   // 'email' | 'code'
+  var pendingEmail = '';
+  var lastSentAt = 0;
+  var resendTimer = null;
 
   function show(name) {
     ['unconfigured', 'signedOut', 'loading', 'signedIn'].forEach(function (k) {
@@ -54,21 +62,20 @@
   }
 
   function say(text, kind) {
-    els.message.textContent = text;
+    els.message.textContent = text || '';
     els.message.className = 'authmsg' + (kind ? ' authmsg--' + kind : '');
   }
 
   function busy(on) {
     els.submit.disabled = on;
-    els.email.disabled = on;
-    els.password.disabled = on;
-    els.submit.textContent = on ? 'Working…' : (mode === 'signin' ? 'Sign in' : 'Create account');
+    els.email.disabled = on || step === 'code';
+    if (els.code) els.code.disabled = on;
+    els.submit.textContent = on
+      ? 'Working…'
+      : (step === 'email' ? 'Send code' : 'Verify & sign in');
   }
 
-  /* ---- Better Auth REST calls ----
-     These are Better Auth's own documented endpoints, called directly with
-     fetch rather than through their client SDK, so the site stays
-     dependency-free and loads no bundler-built script. */
+  /* ---- REST helpers ---- */
   function timeoutFetch(path, options) {
     var controller = window.AbortController ? new AbortController() : null;
     var timer = setTimeout(function () { if (controller) controller.abort(); }, TIMEOUT_MS);
@@ -76,18 +83,16 @@
     if (controller) options.signal = controller.signal;
 
     return window.TS.authFetch(path, options)
-      .catch(function () {
-        throw new Error('Could not reach the server. Check your connection and try again.');
-      })
+      .catch(function () { throw new Error('Could not reach the server. Check your connection and try again.'); })
       .then(
         function (res) { clearTimeout(timer); return res; },
         function (err) { clearTimeout(timer); throw err; }
       );
   }
 
-  function betterAuthCall(path, body) {
+  function authCall(path, body, method) {
     return timeoutFetch('/api/auth' + path, {
-      method: 'POST',
+      method: method || 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body || {})
     }).then(function (res) {
@@ -123,10 +128,7 @@
       })
       .then(function (data) {
         var orders = (data && data.orders) || [];
-        if (!orders.length) {
-          els.ordersEmpty.hidden = false;
-          return;
-        }
+        if (!orders.length) { els.ordersEmpty.hidden = false; return; }
         orders.forEach(function (o) {
           var li = document.createElement('li');
           li.className = 'orderitem';
@@ -134,7 +136,7 @@
           var info = document.createElement('div');
           var name = document.createElement('p');
           name.className = 'orderitem__name';
-          name.textContent = o.product + ' — ' + o.variant; // server-supplied, but textContent regardless
+          name.textContent = o.product + ' — ' + o.variant;
           var date = document.createElement('p');
           date.className = 'orderitem__date';
           date.textContent = new Date(o.created_at).toLocaleDateString();
@@ -150,118 +152,140 @@
           els.orders.appendChild(li);
         });
       })
-      .catch(function () {
-        els.ordersError.hidden = false;
-      });
+      .catch(function () { els.ordersError.hidden = false; });
   }
 
-  /* ---- render signed-in state ---- */
   function renderUser(user) {
-    var label = user.email || 'Signed in';
+    var label = (user && user.email) || 'Signed in';
     els.who.textContent = label;
     els.initial.textContent = label.slice(0, 1).toUpperCase();
     show('signedIn');
     loadOrders();
   }
 
-  /* ---- form ---- */
-  function setMode(next) {
-    mode = next;
-    var signin = mode === 'signin';
-
-    els.formTitle.textContent = signin ? 'Sign in' : 'Create an account';
-    els.formHint.textContent = signin
-      ? 'Use the email and password you signed up with.'
-      : 'Pick a password you do not use anywhere else.';
-    els.submit.textContent = signin ? 'Sign in' : 'Create account';
-    els.toggle.textContent = signin ? 'No account yet? Create one' : 'Already have an account? Sign in';
-    els.password.setAttribute('autocomplete', signin ? 'current-password' : 'new-password');
-    els.pwHint.hidden = signin;
-    els.forgot.hidden = !signin;
+  /* ---- step handling ---- */
+  function toEmailStep() {
+    step = 'email';
+    pendingEmail = '';
+    els.formTitle.textContent = 'Create an account';
+    els.formHint.textContent =
+      "Enter your email and we'll send a 6-digit code. No password — the code signs you in, and creates your account the first time.";
+    els.codeField.hidden = true;
+    if (els.code) els.code.value = '';
+    els.resend.hidden = true;
+    els.restart.hidden = true;
+    stopResendTimer();
     say('', '');
+    busy(false);
+    els.email.disabled = false;
   }
 
-  els.toggle.addEventListener('click', function (e) {
-    e.preventDefault();
-    setMode(mode === 'signin' ? 'signup' : 'signin');
-    els.email.focus();
-  });
+  function toCodeStep(email) {
+    step = 'code';
+    pendingEmail = email;
+    lastSentAt = Date.now();
+    els.formTitle.textContent = 'Enter your code';
+    els.formHint.textContent = 'We sent a 6-digit code to ' + email + '.';
+    els.codeField.hidden = false;
+    els.restart.hidden = false;
+    els.email.disabled = true;
+    busy(false);
+    if (els.code) els.code.focus();
+    startResendTimer();
+  }
 
+  function stopResendTimer() {
+    if (resendTimer) { clearInterval(resendTimer); resendTimer = null; }
+  }
+  function startResendTimer() {
+    stopResendTimer();
+    els.resend.hidden = false;
+    function tick() {
+      var left = Math.ceil((RESEND_COOLDOWN_MS - (Date.now() - lastSentAt)) / 1000);
+      if (left > 0) {
+        els.resend.disabled = true;
+        els.resend.textContent = 'Resend code in ' + left + 's';
+      } else {
+        els.resend.disabled = false;
+        els.resend.textContent = 'Resend code';
+        stopResendTimer();
+      }
+    }
+    tick();
+    resendTimer = setInterval(tick, 1000);
+  }
+
+  function sendCode(email) {
+    return authCall('/email-otp/send-verification-otp', { email: email, type: 'sign-in' });
+  }
+
+  /* ---- events ---- */
   els.form.addEventListener('submit', function (e) {
     e.preventDefault();
 
-    var email = els.email.value.trim();
-    var password = els.password.value;
+    if (step === 'email') {
+      var email = els.email.value.trim();
+      if (!email || email.indexOf('@') === -1) {
+        say('Enter a valid email address.', 'err');
+        els.email.focus();
+        return;
+      }
+      busy(true);
+      say('Sending your code…', '');
+      sendCode(email)
+        .then(function () {
+          say('Code sent. Check your inbox (and spam).', 'ok');
+          toCodeStep(email);
+        })
+        .catch(function (err) { say(err.message, 'err'); busy(false); });
+      return;
+    }
 
-    if (!email || email.indexOf('@') === -1) {
-      say('Enter a valid email address.', 'err');
-      els.email.focus();
+    // step === 'code'
+    var otp = (els.code.value || '').replace(/\D/g, '');
+    if (otp.length !== 6) {
+      say('Enter the 6-digit code from the email.', 'err');
+      els.code.focus();
       return;
     }
-    if (mode === 'signup' && password.length < MIN_PASSWORD) {
-      say('Use at least ' + MIN_PASSWORD + ' characters.', 'err');
-      els.password.focus();
-      return;
-    }
-    if (!password) {
-      say('Enter your password.', 'err');
-      els.password.focus();
-      return;
-    }
-
     busy(true);
-    say('', '');
-
-    var path = mode === 'signin' ? '/sign-in/email' : '/sign-up/email';
-    var payload = mode === 'signin'
-      ? { email: email, password: password }
-      : { email: email, password: password, name: email.split('@')[0] };
-
-    betterAuthCall(path, payload)
+    say('Checking your code…', '');
+    authCall('/sign-in/email-otp', { email: pendingEmail, otp: otp })
       .then(function (data) {
-        els.password.value = ''; // don't leave it sitting in the DOM
-        if (data && data.user) {
-          renderUser(data.user);
-        } else {
-          setMode('signin');
-          say('Account created. Sign in to continue.', 'ok');
-        }
+        if (data && data.user) renderUser(data.user);
+        else return getSession().then(function (s) {
+          if (s && s.user) renderUser(s.user);
+          else throw new Error('Signed in, but could not load your account. Reload the page.');
+        });
       })
-      .catch(function (err) { say(err.message, 'err'); })
-      .then(function () { busy(false); });
+      .catch(function (err) { say(err.message, 'err'); busy(false); });
   });
 
-  els.forgot.addEventListener('click', function (e) {
-    e.preventDefault();
-    var email = els.email.value.trim();
-    if (!email || email.indexOf('@') === -1) {
-      say('Enter your email address above first, then press this again.', 'err');
-      els.email.focus();
-      return;
-    }
+  els.resend.addEventListener('click', function () {
+    if (els.resend.disabled || !pendingEmail) return;
     busy(true);
-    betterAuthCall('/forget-password', { email: email, redirectTo: window.location.origin + window.location.pathname })
-      .then(function () {
-        // Same message whether or not the account exists, so this can't be
-        // used to find out who has one.
-        say('If that address has an account, a reset link is on its way.', 'ok');
-      })
-      .catch(function (err) { say(err.message, 'err'); })
-      .then(function () { busy(false); });
+    say('Resending…', '');
+    sendCode(pendingEmail)
+      .then(function () { lastSentAt = Date.now(); startResendTimer(); say('New code sent.', 'ok'); busy(false); })
+      .catch(function (err) { say(err.message, 'err'); busy(false); });
+  });
+
+  els.restart.addEventListener('click', function () {
+    toEmailStep();
+    els.email.focus();
   });
 
   els.signOut.addEventListener('click', function () {
     var hadToken = !!window.TS.getToken();
     window.TS.setToken(null);
-    show('signedOut');
-    setMode('signin');
+    toEmailStep();
     els.email.value = '';
-    els.password.value = '';
-    if (hadToken) betterAuthCall('/sign-out', {}).catch(function () {}); // best effort
+    show('signedOut');
+    if (hadToken) authCall('/sign-out', {}).catch(function () {});
   });
 
   /* ---- boot ---- */
-  setMode('signin');
+  toEmailStep();
 
   if (!window.TS.BACKEND_URL) {
     show('unconfigured');
@@ -274,12 +298,8 @@
   } else {
     show('loading');
     getSession().then(function (data) {
-      if (data && data.user) {
-        renderUser(data.user);
-      } else {
-        window.TS.setToken(null);
-        show('signedOut');
-      }
+      if (data && data.user) renderUser(data.user);
+      else { window.TS.setToken(null); show('signedOut'); }
     });
   }
 })();

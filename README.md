@@ -98,6 +98,14 @@ meant to be deployed to [Vercel](https://vercel.com) as its own project, separat
 site. It talks to tservices.cc over plain HTTPS `fetch` calls — no build step is added to the
 static site itself.
 
+**Sign-in is email one-time code, not password.** `server/lib/auth.js` runs Better Auth's
+`emailOTP` plugin: the page posts an email to `/api/auth/email-otp/send-verification-otp`, the
+server generates a 6-digit code and hands it to `server/lib/email.js` to deliver, and
+`/api/auth/sign-in/email-otp` with `{ email, otp }` verifies it — creating the account on the
+first successful code for that address. `server/lib/email.js` sends through
+[Resend](https://resend.com) over its REST API (no SDK dependency); swap that one file to use a
+different provider.
+
 **I could not run or test this backend.** Everything else in this repo was checked in a live
 browser before being called done; this sandbox has no Node.js runtime, so `/server` was written
 carefully against Better Auth's and Stripe's documented APIs but never actually executed. Test it
@@ -111,22 +119,26 @@ and eventually (Stripe) your bank details for payouts. That part is yours:
 
 1. **A Postgres database.** [Neon](https://neon.tech) has a free tier and works well here. Copy
    its connection string.
-2. **A Stripe account.** Developers → API keys for a secret key; Developers → Webhooks for a
-   webhook signing secret, once you have a backend URL to point it at (step 4 makes that URL).
-3. **A Vercel account**, then deploy `/server` as its **own** Vercel project (set the project's
+2. **A Resend account** ([resend.com](https://resend.com), free tier) for sending the sign-in
+   codes. Add and verify a domain (or use their onboarding sender for testing), create an API key,
+   and set `RESEND_API_KEY` and `EMAIL_FROM` (e.g. `T's Services <login@tservices.cc>`).
+3. **A Stripe account.** Developers → API keys for a secret key; Developers → Webhooks for a
+   webhook signing secret, once you have a backend URL to point it at (step 5 makes that URL).
+4. **A Vercel account**, then deploy `/server` as its **own** Vercel project (set the project's
    root directory to `server/`, not the repo root — it must not be deployed alongside the static
    site). Set the environment variables from `server/.env.example` in the Vercel project settings.
-4. Back in Stripe, add a webhook endpoint at `<your-backend>.vercel.app/api/webhook`, subscribed to
+5. Back in Stripe, add a webhook endpoint at `<your-backend>.vercel.app/api/webhook`, subscribed to
    `checkout.session.completed`, and paste its signing secret into `STRIPE_WEBHOOK_SECRET`.
-5. Run Better Auth's migration against your database, then `server/schema.sql` for the licences
+6. Run Better Auth's migration against your database, then `server/schema.sql` for the licences
    table — see the comment at the top of that file for the exact order (Better Auth's tables have
    to exist first; `licenses` has a foreign key into them):
    ```bash
    npx @better-auth/cli migrate
    psql "$DATABASE_URL" -f server/schema.sql
    ```
-6. Paste your deployed backend's URL into `BACKEND_URL` at the top of `assets/js/backend.js`, push,
-   and the static site starts talking to it.
+7. Paste your deployed backend's URL into `BACKEND_URL` at the top of `assets/js/backend.js`, push,
+   and the static site starts talking to it. Until then the account section correctly shows
+   "Not open yet".
 
 ### Why bearer tokens, not cookies
 
