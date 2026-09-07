@@ -288,6 +288,39 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 }
 .nav__links .btn { color: #16000c; }
 
+/* signed-in profile chip that replaces the "Sign In" button */
+.navacct {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 5px;
+  border-radius: 100px;
+  background: rgba(255,61,154,.08);
+  border: 1px solid var(--line-2);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 550;
+  max-width: 190px;
+  transition: border-color .2s var(--ease), background .2s var(--ease);
+}
+.navacct:hover { border-color: var(--acc); background: rgba(255,61,154,.14); }
+.navacct__avatar {
+  flex: none;
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, var(--acc-lo), var(--violet));
+  color: #16000c;
+  font-family: var(--display);
+  font-size: 12px;
+  font-weight: 700;
+}
+.navacct__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 780px) {
+  .navacct { max-width: none; justify-content: center; }
+}
+
 .nav__toggle {
   display: none;
   flex-direction: column;
@@ -1167,6 +1200,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   .nav__tools { gap: 8px; }
   .navsearch, .curchip { display: none; }
   .nav.is-searching .navsearch { display: none; }
+  .nav__tools .navacct { flex: 1 1 100%; margin-top: 6px; justify-content: flex-start; }
 
   .steps { grid-template-columns: 1fr; }
   .catpanel { padding: 24px 20px; }

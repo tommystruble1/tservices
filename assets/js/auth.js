@@ -42,6 +42,7 @@
     who:      document.getElementById('authWho'),
     initial:  document.getElementById('authInitial'),
     signOut:  document.getElementById('authSignOut'),
+    navAccount: document.getElementById('navAccount'),
 
     orders:      document.getElementById('ordersList'),
     ordersEmpty: document.getElementById('ordersEmpty'),
@@ -159,8 +160,38 @@
     var label = (user && user.email) || 'Signed in';
     els.who.textContent = label;
     els.initial.textContent = label.slice(0, 1).toUpperCase();
+    setNavAccount(user);
     show('signedIn');
     loadOrders();
+  }
+
+  /* Swap the nav "Sign In" button for a profile chip, and back. */
+  function setNavAccount(user) {
+    var el = els.navAccount;
+    if (!el) return;
+
+    if (user) {
+      var name = (user.name && user.name.trim()) || (user.email || '').split('@')[0] || 'Account';
+      var initial = (name.slice(0, 1) || '?').toUpperCase();
+      el.removeAttribute('data-i18n');
+      el.className = 'navacct';
+      el.textContent = '';
+      var av = document.createElement('span');
+      av.className = 'navacct__avatar';
+      av.setAttribute('aria-hidden', 'true');
+      av.textContent = initial;
+      var nm = document.createElement('span');
+      nm.className = 'navacct__name';
+      nm.textContent = name;
+      el.appendChild(av);
+      el.appendChild(nm);
+      el.setAttribute('aria-label', 'Your account (' + (user.email || name) + ')');
+    } else {
+      el.className = 'btn btn--sm btn--primary';
+      el.setAttribute('data-i18n', 'nav.signIn');
+      el.removeAttribute('aria-label');
+      el.textContent = 'Sign In';
+    }
   }
 
   /* ---- step handling ---- */
@@ -280,6 +311,7 @@
     window.TS.setToken(null);
     toEmailStep();
     els.email.value = '';
+    setNavAccount(null);
     show('signedOut');
     if (hadToken) authCall('/sign-out', {}).catch(function () {});
   });
