@@ -12,8 +12,8 @@
 (function () {
   'use strict';
 
-  /* ===== CONFIG — paste your deployed backend's URL here ===== */
-  var BACKEND_URL = '';   // e.g. https://tservices-api.vercel.app
+  /* ===== CONFIG — the deployed Better Auth + Stripe backend ===== */
+  var BACKEND_URL = 'https://tservices-server.vercel.app';
   /* ============================================================= */
 
   var TOKEN_KEY = 'ts_auth_token';
