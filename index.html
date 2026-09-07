@@ -21,7 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/css/style.css?v=5" />
+<link rel="stylesheet" href="assets/css/style.css?v=6" />
 <link rel="icon" href="assets/img/logo-t.webp" />
 
 <!-- Single-view routing: hide every section except Home until router.js runs. -->
@@ -154,19 +154,13 @@
 
           <h3 class="products__label">Yari</h3>
 
-          <!-- EDIT ME: Yari is priced but marked out of stock for now. To reopen
-               it, on the card: badge--off -> badge--live, remove is-off from the
-               <li>, and on each variant button restore
-               `data-add-to-cart data-id="yari-…" data-name="…" data-price="…"`
-               (see git history or the README's Cart section for the exact
-               values) and drop the disabled attribute. -->
           <ul class="products">
-            <li class="product is-off product--wide">
+            <li class="product product--live product--wide">
               <div class="product__hero">
               <img class="product__cover" src="assets/img/yari-banner.gif" alt="Yari" />
 
                 <span class="product__status product__status--ok"><span class="dot"></span> Undetected</span>
-                <span class="product__stock is-off">Out of stock</span>
+                <span class="product__stock">In stock</span>
                 <div class="product__cardhead">
                   <img class="product__logo" src="assets/img/logo-t.webp" alt="" aria-hidden="true" />
                   <div>
@@ -185,7 +179,8 @@
                     <p class="variant__meta">Seven days</p>
                   </div>
                   <p class="variant__price">$7.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
+                  <button class="btn btn--primary btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="yari-week" data-name="Yari — 1 week" data-price="7.00">Add to cart</button>
                 </li>
 
                 <li class="variant">
@@ -194,7 +189,8 @@
                     <p class="variant__meta">Thirty days</p>
                   </div>
                   <p class="variant__price">$25.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
+                  <button class="btn btn--primary btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="yari-month" data-name="Yari — 1 month" data-price="25.00">Add to cart</button>
                 </li>
 
                 <li class="variant">
@@ -203,7 +199,8 @@
                     <p class="variant__meta">Sixty days</p>
                   </div>
                   <p class="variant__price">$45.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
+                  <button class="btn btn--primary btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="yari-2month" data-name="Yari — 2 months" data-price="45.00">Add to cart</button>
                 </li>
 
                 <li class="variant">
@@ -212,7 +209,8 @@
                     <p class="variant__meta">Ninety days</p>
                   </div>
                   <p class="variant__price">$60.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
+                  <button class="btn btn--primary btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="yari-3month" data-name="Yari — 3 months" data-price="60.00">Add to cart</button>
                 </li>
 
                 <li class="variant variant--best">
@@ -221,7 +219,8 @@
                     <p class="variant__meta">One payment, no renewals</p>
                   </div>
                   <p class="variant__price">$110.00</p>
-                  <button class="btn btn--ghost btn--sm variant__cta" type="button" disabled>Out of stock</button>
+                  <button class="btn btn--primary btn--sm variant__cta" type="button"
+                          data-add-to-cart data-id="yari-lifetime" data-name="Yari — Lifetime" data-price="110.00">Add to cart</button>
                 </li>
               </ul>
             </li>
@@ -590,11 +589,11 @@
   <span class="discord-fab__label">Join Discord</span>
 </a>
 
-<script src="assets/js/main.js?v=5"></script>
-<script src="assets/js/router.js?v=5"></script>
-<script src="assets/js/backend.js?v=5"></script>
-<script src="assets/js/auth.js?v=5"></script>
-<script src="assets/js/cart.js?v=5"></script>
-<script src="assets/js/i18n.js?v=5"></script>
+<script src="assets/js/main.js?v=6"></script>
+<script src="assets/js/router.js?v=6"></script>
+<script src="assets/js/backend.js?v=6"></script>
+<script src="assets/js/auth.js?v=6"></script>
+<script src="assets/js/cart.js?v=6"></script>
+<script src="assets/js/i18n.js?v=6"></script>
 </body>
 </html>
