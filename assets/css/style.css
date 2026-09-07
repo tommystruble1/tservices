@@ -803,6 +803,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
   text-transform: uppercase;
   color: var(--ink-dim);
 }
+.product__status--ok { color: var(--green); border-color: rgba(69,217,138,.4); }
 .product__stock {
   top: 13px; right: 14px;
   max-width: 45%;
