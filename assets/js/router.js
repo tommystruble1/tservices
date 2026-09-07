@@ -31,7 +31,8 @@
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function routeFromHash() {
-    var h = (location.hash || '').replace(/^#/, '').toLowerCase();
+    // Drop any `?…`/`&…` the hash carries (e.g. `#account?checkout=success`).
+    var h = (location.hash || '').replace(/^#/, '').split(/[?&]/)[0].toLowerCase();
     if (h === '' || h === 'top') h = 'home';
     return VIEWS[h] ? h : 'home';
   }

@@ -314,6 +314,19 @@
   });
 
   items = restore();
+
+  // Coming back from a completed Stripe Checkout: the success_url is
+  // `${SITE_URL}/#account?checkout=success`, so the flag lives in the hash.
+  // Empty the cart, then strip the flag so a refresh doesn't re-trigger.
+  if (/[#&?]checkout=success/.test(window.location.hash)) {
+    items = [];
+    persist();
+    try {
+      var cleaned = window.location.hash.replace(/([#&?])checkout=success/, '$1').replace(/[?&]$/, '');
+      history.replaceState(null, '', window.location.pathname + window.location.search + cleaned);
+    } catch (err) {}
+  }
+
   render();
 
   // Let i18n.js re-render money in the new locale after a language change.
