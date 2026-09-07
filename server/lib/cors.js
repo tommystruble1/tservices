@@ -3,9 +3,9 @@
    cross-origin by definition — this isn't optional hardening, it's required
    for anything to work at all. */
 
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://tservices.cc';
+export const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'https://tservices.cc';
 
-function withCors(handler) {
+export function withCors(handler) {
   return async function (req, res) {
     res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -24,5 +24,3 @@ function withCors(handler) {
     return handler(req, res);
   };
 }
-
-module.exports = { withCors, ALLOWED_ORIGIN };

@@ -5,11 +5,16 @@
    This is the only place a licence key is ever created. The page never
    generates one, and checkout.js never returns one — a key only exists once
    Stripe has confirmed the money actually arrived. */
-const Stripe = require('stripe');
-const crypto = require('crypto');
-const { getPool } = require('../lib/db');
+import Stripe from 'stripe';
+import crypto from 'node:crypto';
+import { getPool } from '../lib/db.js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_placeholder');
+
+// Stripe signs the raw request body; Vercel's default JSON parsing would
+// re-serialize it first and break that signature. Disable the body parser so
+// `req` stays a readable stream we can hash byte-for-byte.
+export const config = { api: { bodyParser: false } };
 
 function readRawBody(readable) {
   return new Promise((resolve, reject) => {
@@ -26,7 +31,7 @@ function makeLicenseKey() {
   return hex.match(/.{1,5}/g).join('-');
 }
 
-async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).end();
     return;
@@ -39,8 +44,6 @@ async function handler(req, res) {
   try {
     event = stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    // A bad signature means this request didn't genuinely come from Stripe —
-    // refuse it rather than trust an unverified "payment succeeded" claim.
     console.error('[webhook] signature check failed:', err.message);
     res.status(400).send('Webhook signature verification failed.');
     return;
@@ -53,9 +56,6 @@ async function handler(req, res) {
     if (userId) {
       const pool = getPool();
 
-      // Stripe retries webhook delivery on anything but a fast 2xx. Without
-      // this check, a retry would hand out a second set of keys for the same
-      // payment.
       const already = await pool.query(
         'select 1 from licenses where stripe_session_id = $1 limit 1',
         [session.id]
@@ -97,12 +97,3 @@ async function handler(req, res) {
 
   res.status(200).json({ received: true });
 }
-
-// Stripe signs the raw request body; Vercel's default JSON parsing would
-// re-serialize it first and break that signature. Read the raw bytes instead.
-// This MUST be set on the same object as the default export below it — an
-// earlier version of this file set it on module.exports before reassigning
-// module.exports to the handler function, which silently discarded it.
-handler.config = { api: { bodyParser: false } };
-
-module.exports = handler;

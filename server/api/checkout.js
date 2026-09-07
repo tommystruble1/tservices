@@ -1,17 +1,17 @@
 /* POST /api/checkout — creates a Stripe Checkout Session for the signed-in
    user's cart. Requires a session, because the resulting purchase has to be
    attached to somebody's account for the dashboard to ever show it again. */
-const Stripe = require('stripe');
-const { fromNodeHeaders } = require('better-auth/node');
-const { auth } = require('../lib/auth');
-const { withCors } = require('../lib/cors');
-const { PRICES } = require('../lib/prices');
+import Stripe from 'stripe';
+import { fromNodeHeaders } from 'better-auth/node';
+import { auth } from '../lib/auth.js';
+import { withCors } from '../lib/cors.js';
+import { PRICES } from '../lib/prices.js';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_placeholder');
 const SITE_URL = process.env.SITE_URL || 'https://tservices.cc';
 const MAX_QTY = 20;
 
-module.exports = withCors(async function handler(req, res) {
+export default withCors(async function handler(req, res) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' });
     return;

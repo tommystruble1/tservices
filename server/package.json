@@ -2,6 +2,7 @@
   "name": "tservices-server",
   "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "Better Auth + Stripe backend for tservices.cc. Deployed separately from the static site — see server/README.md.",
   "engines": {
     "node": ">=18"

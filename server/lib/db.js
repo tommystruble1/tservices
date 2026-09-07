@@ -1,10 +1,12 @@
 /* A single shared Postgres pool, reused across warm serverless invocations
    rather than opened fresh on every request. */
-const { Pool } = require('pg');
+import pg from 'pg';
+
+const { Pool } = pg;
 
 let pool = null;
 
-function getPool() {
+export function getPool() {
   if (!pool) {
     pool = new Pool({
       connectionString: process.env.DATABASE_URL,
@@ -13,5 +15,3 @@ function getPool() {
   }
   return pool;
 }
-
-module.exports = { getPool };

@@ -11,7 +11,7 @@
    signature `sendLoginCode(email, otp)` and point it at that provider's API.
    Node 18+ has a global `fetch`, which is what Vercel's runtime gives us. */
 
-async function sendLoginCode(email, otp) {
+export async function sendLoginCode(email, otp) {
   const key = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
 
@@ -48,5 +48,3 @@ async function sendLoginCode(email, otp) {
     throw new Error(`Resend API ${res.status}: ${body}`);
   }
 }
-
-module.exports = { sendLoginCode };

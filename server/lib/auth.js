@@ -12,12 +12,14 @@
    of view, and browsers block those. The bearer plugin instead returns the
    session token in a response header on sign-in; the page stores it and sends
    it back as `Authorization: Bearer <token>`, same as any API key. */
-const { betterAuth } = require('better-auth');
-const { bearer, emailOTP } = require('better-auth/plugins');
-const { Pool } = require('pg');
-const { sendLoginCode } = require('./email');
+import { betterAuth } from 'better-auth';
+import { bearer, emailOTP } from 'better-auth/plugins';
+import pg from 'pg';
+import { sendLoginCode } from './email.js';
 
-const auth = betterAuth({
+const { Pool } = pg;
+
+export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   secret: process.env.BETTER_AUTH_SECRET,
   database: new Pool({
@@ -41,5 +43,3 @@ const auth = betterAuth({
     })
   ]
 });
-
-module.exports = { auth };

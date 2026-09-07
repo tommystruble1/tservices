@@ -1,12 +1,12 @@
 /* GET /api/orders — the signed-in user's own licence keys, and nothing else.
    Scoped by session.user.id from the verified token, never from anything the
    client claims about who it is. */
-const { fromNodeHeaders } = require('better-auth/node');
-const { auth } = require('../lib/auth');
-const { withCors } = require('../lib/cors');
-const { getPool } = require('../lib/db');
+import { fromNodeHeaders } from 'better-auth/node';
+import { auth } from '../lib/auth.js';
+import { withCors } from '../lib/cors.js';
+import { getPool } from '../lib/db.js';
 
-module.exports = withCors(async function handler(req, res) {
+export default withCors(async function handler(req, res) {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
     return;
